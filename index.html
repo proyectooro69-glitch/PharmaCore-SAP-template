@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PharmaCore SAP — Sistema Integral Farmacéutico</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --nav:#052E1C;--nav2:#073D25;--acc:#00C48C;--acc2:#00A376;
+    --bg:#F4F7F5;--card:#fff;--text:#0D2B1A;--muted:#6B8A78;
+    --border:#D8E8E0;--red:#E53E3E;--amber:#D97706;--blue:#2563EB;
+    --ctrl:#7C3AED;--nat:#15803D;--lib:#0369A1;
+    --font:'Sora',sans-serif;--mono:'DM Mono',monospace;
+  }
+  body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;}
+
+  /* SIDEBAR */
+  #sidebar{width:240px;background:var(--nav);display:flex;flex-direction:column;flex-shrink:0;}
+  .logo{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,.08);}
+  .logo-mark{display:flex;align-items:center;gap:10px;}
+  .logo-icon{width:34px;height:34px;background:var(--acc);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+  .logo-icon svg{width:18px;height:18px;fill:var(--nav);}
+  .logo-text{font-size:15px;font-weight:700;color:#fff;letter-spacing:-0.3px;}
+  .logo-sub{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
+
+  .user-card{padding:14px 16px;margin:12px;background:rgba(255,255,255,.06);border-radius:10px;}
+  .user-avatar{width:32px;height:32px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--nav);flex-shrink:0;}
+  .user-info{margin-left:10px;}
+  .user-name{font-size:12px;font-weight:600;color:#fff;}
+  .user-role{font-size:10px;color:rgba(255,255,255,.45);}
+  .user-card{display:flex;align-items:center;}
+  .user-dot{width:7px;height:7px;background:var(--acc);border-radius:50%;margin-left:auto;}
+
+  nav{flex:1;padding:8px 10px;overflow-y:auto;}
+  .nav-section{font-size:9px;letter-spacing:1.8px;text-transform:uppercase;color:rgba(255,255,255,.3);padding:14px 10px 6px;font-weight:600;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.6);font-size:13px;font-weight:500;transition:all .15s;margin-bottom:2px;}
+  .nav-item:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .nav-item.active{background:var(--acc2);color:#fff;}
+  .nav-item svg{width:16px;height:16px;flex-shrink:0;opacity:.8;}
+  .nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;padding:1px 6px;border-radius:20px;font-weight:700;}
+  .nav-bottom{padding:12px 10px;border-top:1px solid rgba(255,255,255,.08);}
+  .nav-time{font-size:10px;color:rgba(255,255,255,.3);padding:0 10px;font-family:var(--mono);}
+
+  /* MAIN */
+  #main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+  #topbar{background:#fff;border-bottom:1px solid var(--border);padding:0 28px;height:58px;display:flex;align-items:center;gap:16px;flex-shrink:0;}
+  .page-title{font-size:17px;font-weight:700;color:var(--text);}
+  .page-sub{font-size:12px;color:var(--muted);margin-left:4px;}
+  .topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+  .topbar-btn{padding:7px 16px;border-radius:8px;border:1.5px solid var(--border);background:#fff;font-size:12px;font-weight:600;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:6px;font-family:var(--font);}
+  .topbar-btn.primary{background:var(--acc);border-color:var(--acc);color:#fff;}
+  .topbar-btn:hover{border-color:var(--acc);color:var(--acc);}
+  .topbar-btn.primary:hover{background:var(--acc2);border-color:var(--acc2);color:#fff;}
+
+  #content{flex:1;overflow-y:auto;padding:24px 28px;}
+
+  /* CARDS */
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+  .kpi-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+  .kpi-label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;}
+  .kpi-value{font-size:26px;font-weight:700;color:var(--text);margin:6px 0 4px;letter-spacing:-1px;}
+  .kpi-delta{font-size:12px;font-weight:600;}
+  .kpi-delta.up{color:var(--acc2);}
+  .kpi-delta.down{color:var(--red);}
+  .kpi-icon{float:right;width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;}
+  .kpi-icon svg{width:18px;height:18px;}
+
+  .section-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;}
+  .card-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+  .card-title span{font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;}
+  .chart-wrap{position:relative;width:100%;height:200px;}
+
+  /* TABLES */
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{padding:10px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);}
+  td{padding:11px 12px;border-bottom:1px solid var(--border);color:var(--text);}
+  tr:last-child td{border:none;}
+  tr:hover td{background:rgba(0,196,140,.04);}
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+  .badge-ctrl{background:#EDE9FE;color:#5B21B6;}
+  .badge-lib{background:#DBEAFE;color:#1E40AF;}
+  .badge-nat{background:#DCFCE7;color:#166534;}
+  .badge-ok{background:#DCFCE7;color:#166534;}
+  .badge-low{background:#FEF3C7;color:#92400E;}
+  .badge-out{background:#FEE2E2;color:#991B1B;}
+  .badge-sale{background:#F0FDF4;color:#15803D;}
+  .badge-ctrl2{background:#EDE9FE;color:var(--ctrl);}
+
+  /* INVENTORY PAGE */
+  .inv-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+  .search-box{flex:1;max-width:320px;position:relative;}
+  .search-box input{width:100%;padding:9px 14px 9px 36px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:var(--font);color:var(--text);background:#fff;outline:none;}
+  .search-box input:focus{border-color:var(--acc);}
+  .search-box svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--muted);}
+  .filter-btn{padding:9px 14px;border:1.5px solid var(--border);border-radius:9px;background:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);color:var(--text);}
+  .filter-btn.active-ctrl{border-color:var(--ctrl);background:#EDE9FE;color:#5B21B6;}
+  .filter-btn.active-lib{border-color:var(--blue);background:#DBEAFE;color:#1E40AF;}
+  .filter-btn.active-nat{border-color:var(--nat);background:#DCFCE7;color:var(--nat);}
+
+  /* POS */
+  .pos-layout{display:grid;grid-template-columns:1fr 340px;gap:20px;height:calc(100vh - 118px);}
+  .pos-left{display:flex;flex-direction:column;gap:16px;}
+  .pos-right{background:var(--card);border:1px solid var(--border);border-radius:14px;display:flex;flex-direction:column;}
+  .pos-header{padding:16px 18px;border-bottom:1px solid var(--border);}
+  .pos-header h3{font-size:14px;font-weight:700;}
+  .cart-items{flex:1;overflow-y:auto;padding:0 18px;}
+  .cart-item{padding:12px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+  .cart-item-name{flex:1;font-size:13px;font-weight:600;}
+  .cart-item-cat{font-size:10px;color:var(--muted);}
+  .qty-ctrl{display:flex;align-items:center;gap:6px;}
+  .qty-btn{width:24px;height:24px;border-radius:6px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;color:var(--text);}
+  .qty-num{width:28px;text-align:center;font-size:13px;font-weight:700;font-family:var(--mono);}
+  .cart-price{font-size:13px;font-weight:700;font-family:var(--mono);color:var(--text);min-width:64px;text-align:right;}
+  .cart-del{color:var(--muted);cursor:pointer;font-size:16px;margin-left:4px;}
+  .cart-del:hover{color:var(--red);}
+  .pos-footer{padding:16px 18px;border-top:1px solid var(--border);}
+  .totals-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;color:var(--muted);}
+  .totals-total{display:flex;justify-content:space-between;font-size:18px;font-weight:700;margin:12px 0;}
+  .btn-checkout{width:100%;padding:13px;background:var(--acc);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font);margin-top:6px;}
+  .btn-checkout:hover{background:var(--acc2);}
+  .btn-clear{width:100%;padding:10px;background:#fff;color:var(--muted);border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);margin-top:8px;}
+  .prod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;overflow-y:auto;}
+  .prod-card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;}
+  .prod-card:hover{border-color:var(--acc);transform:translateY(-1px);}
+  .prod-card-name{font-size:13px;font-weight:700;margin-bottom:4px;}
+  .prod-card-lab{font-size:11px;color:var(--muted);}
+  .prod-card-price{font-size:15px;font-weight:700;color:var(--acc2);margin-top:8px;font-family:var(--mono);}
+  .prod-card-stock{font-size:10px;color:var(--muted);margin-top:2px;}
+
+  /* MODAL */
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:center;justify-content:center;}
+  .modal-bg.open{display:flex;}
+  .modal{background:#fff;border-radius:16px;padding:28px;width:520px;max-width:95vw;}
+  .modal-title{font-size:17px;font-weight:700;margin-bottom:20px;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+  .form-group{display:flex;flex-direction:column;gap:6px;}
+  .form-group label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+  .form-group input,.form-group select{padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:var(--font);color:var(--text);outline:none;background:#fff;}
+  .form-group input:focus,.form-group select:focus{border-color:var(--acc);}
+  .modal-btns{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;}
+  .btn-cancel{padding:9px 20px;border:1.5px solid var(--border);border-radius:9px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);}
+  .btn-save{padding:9px 20px;border:none;border-radius:9px;background:var(--acc);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);}
+
+  /* ALERTS */
+  .alert-banner{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;margin-bottom:14px;font-size:13px;}
+  .alert-banner.warn{background:#FEF3C7;border:1px solid #FCD34D;color:#92400E;}
+  .alert-banner.info{background:#DBEAFE;border:1px solid #93C5FD;color:#1E40AF;}
+
+  /* USER PAGE */
+  .user-table-row td:first-child{font-weight:600;}
+  .avatar-sm{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;margin-right:8px;vertical-align:middle;}
+  .status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;}
+
+  /* RESPONSIVE SMALL */
+  .full-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;}
+  .section-title{font-size:18px;font-weight:700;margin-bottom:6px;}
+  .section-desc{font-size:13px;color:var(--muted);margin-bottom:20px;}
+
+  /* RECEIPT */
+  .receipt{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;max-width:400px;margin:0 auto;}
+  .receipt-header{text-align:center;margin-bottom:20px;}
+  .receipt-header h2{font-size:16px;font-weight:700;}
+  .receipt-header p{font-size:12px;color:var(--muted);}
+  .receipt-item{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px dashed var(--border);}
+  .receipt-total{display:flex;justify-content:space-between;font-size:16px;font-weight:700;padding:12px 0 0;}
+
+  ::-webkit-scrollbar{width:5px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div class="logo">
+    <div class="logo-mark">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <div>
+        <div class="logo-text">PharmaCore</div>
+        <div class="logo-sub">Sistema SAP Farmacéutico</div>
+      </div>
+    </div>
+  </div>
+  <div class="user-card">
+    <div class="user-avatar" id="sideUserAvatar">AD</div>
+    <div class="user-info">
+      <div class="user-name" id="sideUserName">Admin</div>
+      <div class="user-role" id="sideUserRole">Administrador</div>
+    </div>
+    <div class="user-dot"></div>
+  </div>
+  <nav>
+    <div class="nav-section">Principal</div>
+    <div class="nav-item active" onclick="showPage('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-section">Operaciones</div>
+    <div class="nav-item" onclick="showPage('ventas')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      Punto de Venta
+    </div>
+    <div class="nav-item" onclick="showPage('inventario')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+      Inventario
+      <span class="nav-badge" id="lowStockBadge">3</span>
+    </div>
+    <div class="nav-item" onclick="showPage('historial')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+      Historial de Ventas
+    </div>
+    <div class="nav-section">Análisis</div>
+    <div class="nav-item" onclick="showPage('analisis')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Análisis de Datos
+    </div>
+    <div class="nav-section">Administración</div>
+    <div class="nav-item" onclick="showPage('usuarios')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Usuarios
+    </div>
+  </nav>
+  <div class="nav-bottom">
+    <div class="nav-time" id="clock">00:00:00</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <div>
+      <span class="page-title" id="pageTitle">Dashboard</span>
+      <span class="page-sub" id="pageDate"></span>
+    </div>
+    <div class="topbar-right">
+      <button class="topbar-btn" onclick="showModal('loginModal')">👤 Cambiar Usuario</button>
+      <button class="topbar-btn primary" id="topAddBtn" onclick="topAddAction()">+ Nuevo Producto</button>
+    </div>
+  </div>
+  <div id="content"></div>
+</div>
+
+<!-- MODAL ADD/EDIT PRODUCT -->
+<div class="modal-bg" id="productModal">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">Agregar Producto</div>
+    <div class="form-row">
+      <div class="form-group"><label>Nombre del Producto</label><input id="f_name" placeholder="Ej: Amoxicilina 500mg"></div>
+      <div class="form-group"><label>Laboratorio</label><input id="f_lab" placeholder="Ej: Bayer"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Categoría</label>
+        <select id="f_cat">
+          <option value="Libre">Libre Venta</option>
+          <option value="Controlado">Controlado</option>
+          <option value="Natural">Natural/Homeopático</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Presentación</label><input id="f_pres" placeholder="Ej: Cápsulas x30"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Precio Venta (Bs)</label><input id="f_price" type="number" placeholder="0.00"></div>
+      <div class="form-group"><label>Stock Actual</label><input id="f_stock" type="number" placeholder="0"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Stock Mínimo</label><input id="f_min" type="number" placeholder="10"></div>
+      <div class="form-group"><label>Código</label><input id="f_code" placeholder="Auto-generado" id="f_code" readonly></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Fecha Vencimiento</label><input id="f_exp" type="date"></div>
+      <div class="form-group"><label>Proveedor</label><input id="f_prov" placeholder="Ej: Distribuidora Salud"></div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('productModal')">Cancelar</button>
+      <button class="btn-save" onclick="saveProduct()">Guardar Producto</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LOGIN -->
+<div class="modal-bg" id="loginModal">
+  <div class="modal" style="width:360px;">
+    <div class="modal-title">Cambiar Sesión</div>
+    <div class="form-group" style="margin-bottom:14px;"><label>Usuario</label>
+      <select id="loginUser">
+        <option value="0">Admin General</option>
+        <option value="1">Farmacéutico Senior</option>
+        <option value="2">Cajero(a)</option>
+        <option value="3">Auxiliar de Farmacia</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:0;"><label>PIN</label><input type="password" placeholder="••••" id="loginPin"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('loginModal')">Cancelar</button>
+      <button class="btn-save" onclick="doLogin()">Ingresar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RECEIPT -->
+<div class="modal-bg" id="receiptModal">
+  <div class="modal" style="width:420px;">
+    <div id="receiptContent"></div>
+    <div class="modal-btns">
+      <button class="btn-save" onclick="closeModal('receiptModal');resetCart()">Cerrar y Nueva Venta</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const users=[
+  {id:0,name:"Carlos Mendoza",role:"Administrador",color:"#00C48C",avatar:"CM",active:true,since:"2021-03-15",sales:1402,perms:"Total"},
+  {id:1,name:"Lucía Rodríguez",role:"Farmacéutico Senior",color:"#7C3AED",avatar:"LR",active:true,since:"2022-07-01",sales:987,perms:"Ventas+Inv"},
+  {id:2,name:"Andrés Torres",role:"Cajero",color:"#2563EB",avatar:"AT",active:true,since:"2023-01-10",sales:543,perms:"Solo Ventas"},
+  {id:3,name:"María López",role:"Auxiliar",color:"#D97706",avatar:"ML",active:false,since:"2023-09-20",sales:198,perms:"Consulta"},
+];
+
+let currentUser=users[0];
+let editIdx=-1;
+
+let products=[
+  {id:"PC001",name:"Amoxicilina 500mg",lab:"Roewe",cat:"Libre",pres:"Cápsulas x30",price:45,stock:120,min:20,exp:"2026-08-01",prov:"DistribFarma",sold:342},
+  {id:"PC002",name:"Ibuprofeno 400mg",lab:"Bayer",cat:"Libre",pres:"Tabletas x20",price:28,stock:85,min:15,exp:"2026-11-15",prov:"Bayer Direct",sold:289},
+  {id:"PC003",name:"Clonazepam 0.5mg",lab:"Roche",cat:"Controlado",pres:"Tabletas x30",price:95,stock:18,min:5,exp:"2025-12-31",prov:"Roche Pharma",sold:67},
+  {id:"PC004",name:"Paracetamol 500mg",lab:"Genérico",cat:"Libre",pres:"Tabletas x100",price:22,stock:6,min:30,exp:"2027-03-20",prov:"FarmaGen",sold:520},
+  {id:"PC005",name:"Alprazolam 1mg",lab:"Pfizer",cat:"Controlado",pres:"Tabletas x15",price:110,stock:12,min:5,exp:"2026-05-10",prov:"Pfizer",sold:45},
+  {id:"PC006",name:"Equinacea Plus",lab:"NaturVital",cat:"Natural",pres:"Cápsulas x60",price:65,stock:42,min:10,exp:"2026-09-01",prov:"NaturVital",sold:118},
+  {id:"PC007",name:"Omeprazol 20mg",lab:"AstraZeneca",cat:"Libre",pres:"Cápsulas x28",price:38,stock:55,min:15,exp:"2027-01-15",prov:"AZ Direct",sold:203},
+  {id:"PC008",name:"Melatonina 5mg",lab:"Solgar",cat:"Natural",pres:"Tabletas x60",price:75,stock:29,min:10,exp:"2026-10-20",prov:"NaturDist",sold:89},
+  {id:"PC009",name:"Metformina 850mg",lab:"Merck",cat:"Libre",pres:"Tabletas x60",price:42,stock:0,min:10,exp:"2026-07-30",prov:"Merck",sold:156},
+  {id:"PC010",name:"Diazepam 5mg",lab:"Roche",cat:"Controlado",pres:"Tabletas x30",price:85,stock:9,min:5,exp:"2026-04-15",prov:"Roche",sold:34},
+  {id:"PC011",name:"Valeriana Ext.",lab:"Farma Natural",cat:"Natural",pres:"Gotas 30ml",price:52,stock:33,min:8,exp:"2026-12-01",prov:"NaturVital",sold:76},
+  {id:"PC012",name:"Atorvastatina 40mg",lab:"Pfizer",cat:"Libre",pres:"Tabletas x30",price:88,stock:41,min:10,exp:"2027-02-28",prov:"Pfizer",sold:122},
+];
+
+let cart=[];
+let allSales=[
+  {id:"VT-0001",date:"2025-04-13",time:"08:32",user:"Lucía Rodríguez",items:[{name:"Amoxicilina 500mg",qty:2,price:45},{name:"Ibuprofeno 400mg",qty:1,price:28}],total:118,method:"Efectivo"},
+  {id:"VT-0002",date:"2025-04-13",time:"09:14",user:"Carlos Mendoza",items:[{name:"Clonazepam 0.5mg",qty:1,price:95}],total:95,method:"Tarjeta"},
+  {id:"VT-0003",date:"2025-04-13",time:"10:05",user:"Andrés Torres",items:[{name:"Paracetamol 500mg",qty:3,price:22},{name:"Omeprazol 20mg",qty:1,price:38}],total:104,method:"Efectivo"},
+  {id:"VT-0004",date:"2025-04-13",time:"11:22",user:"Lucía Rodríguez",items:[{name:"Equinacea Plus",qty:2,price:65}],total:130,method:"Transferencia"},
+  {id:"VT-0005",date:"2025-04-12",time:"14:10",user:"Carlos Mendoza",items:[{name:"Melatonina 5mg",qty:1,price:75},{name:"Valeriana Ext.",qty:1,price:52}],total:127,method:"Efectivo"},
+  {id:"VT-0006",date:"2025-04-12",time:"15:40",user:"Andrés Torres",items:[{name:"Atorvastatina 40mg",qty:1,price:88}],total:88,method:"Tarjeta"},
+  {id:"VT-0007",date:"2025-04-11",time:"09:00",user:"Lucía Rodríguez",items:[{name:"Alprazolam 1mg",qty:2,price:110}],total:220,method:"Efectivo"},
+];
+
+let saleCounter=allSales.length+1;
+
+// ===== NAVIGATION =====
+let currentPage='dashboard';
+let invFilter='all';
+let chartInstances={};
+
+function showPage(page){
+  currentPage=page;
+  document.querySelectorAll('.nav-item').forEach(el=>{el.classList.remove('active');});
+  const items=document.querySelectorAll('.nav-item');
+  const pages=['dashboard','ventas','inventario','historial','analisis','usuarios'];
+  const idx=pages.indexOf(page);
+  if(idx>=0)items[idx].classList.add('active');
+  const titles={dashboard:'Dashboard',ventas:'Punto de Venta',inventario:'Gestión de Inventario',historial:'Historial de Ventas',analisis:'Análisis de Datos',usuarios:'Gestión de Usuarios'};
+  document.getElementById('pageTitle').textContent=titles[page]||page;
+  const addBtns={dashboard:'+ Actualizar',ventas:'',inventario:'+ Nuevo Producto',historial:'',analisis:'',usuarios:'+ Nuevo Usuario'};
+  const btn=document.getElementById('topAddBtn');
+  btn.textContent=addBtns[page]||'';
+  btn.style.display=addBtns[page]?'flex':'none';
+  Object.values(chartInstances).forEach(c=>{try{c.destroy();}catch(e){}});
+  chartInstances={};
+  renderPage(page);
+}
+
+function topAddAction(){
+  if(currentPage==='inventario')showModal('productModal');
+  else if(currentPage==='dashboard')showPage('dashboard');
+}
+
+// ===== CLOCK =====
+function updateClock(){
+  const now=new Date();
+  document.getElementById('clock').textContent=now.toLocaleTimeString('es');
+  document.getElementById('pageDate').textContent=now.toLocaleDateString('es',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+setInterval(updateClock,1000);updateClock();
+
+// ===== RENDER PAGES =====
+function renderPage(page){
+  const c=document.getElementById('content');
+  const fns={dashboard:renderDashboard,ventas:renderVentas,inventario:renderInventario,historial:renderHistorial,analisis:renderAnalisis,usuarios:renderUsuarios};
+  c.innerHTML='';
+  if(fns[page])fns[page]();
+}
+
+// ===== DASHBOARD =====
+function renderDashboard(){
+  const c=document.getElementById('content');
+  const today=new Date().toISOString().split('T')[0];
+  const todaySales=allSales.filter(s=>s.date===today||s.date==='2025-04-13');
+  const totalDay=todaySales.reduce((a,s)=>a+s.total,0);
+  const lowStock=products.filter(p=>p.stock>0&&p.stock<=p.min).length;
+  const outStock=products.filter(p=>p.stock===0).length;
+  const ctrl=products.filter(p=>p.cat==='Controlado').length;
+
+  c.innerHTML=`
+  <div class="alert-banner warn" id="lowAlert" style="${lowStock===0?'display:none':''}">
+    ⚠️ <strong>${lowStock} productos</strong> con stock bajo el mínimo — ${outStock} agotados. Revisar inventario.
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:#DCFCE7;float:right;"><svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      <div class="kpi-label">Ventas del Día</div>
+      <div class="kpi-value">Bs ${totalDay.toLocaleString()}</div>
+      <div class="kpi-delta up">↑ ${todaySales.length} transacciones hoy</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:#DBEAFE;float:right;"><svg viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
+      <div class="kpi-label">Total Productos</div>
+      <div class="kpi-value">${products.length}</div>
+      <div class="kpi-delta" style="color:var(--muted)">${ctrl} controlados en sistema</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:#FEF3C7;float:right;"><svg viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+      <div class="kpi-label">Stock Crítico</div>
+      <div class="kpi-value">${lowStock+outStock}</div>
+      <div class="kpi-delta down">${outStock} agotados · ${lowStock} bajo mínimo</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:#F3E8FF;float:right;"><svg viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+      <div class="kpi-label">Usuarios Activos</div>
+      <div class="kpi-value">${users.filter(u=>u.active).length}</div>
+      <div class="kpi-delta" style="color:var(--muted)">Sesión: ${currentUser.name.split(' ')[0]}</div>
+    </div>
+  </div>
+
+  <div class="section-row">
+    <div class="card">
+      <div class="card-title">Ventas por Categoría — Semana <span onclick="showPage('analisis')">Ver análisis →</span></div>
+      <div class="chart-wrap"><canvas id="ch1" role="img" aria-label="Ventas por categoría esta semana">Ventas: Libre Venta, Controlados, Naturales</canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Ingresos Diarios — 7 días <span onclick="showPage('historial')">Ver historial →</span></div>
+      <div class="chart-wrap"><canvas id="ch2" role="img" aria-label="Ingresos diarios últimos 7 días">Ingresos diarios</canvas></div>
+    </div>
+  </div>
+
+  <div class="section-row">
+    <div class="card">
+      <div class="card-title">Últimas Ventas <span onclick="showPage('historial')">Ver todo →</span></div>
+      <table>
+        <tr><th>Código</th><th>Hora</th><th>Usuario</th><th>Total</th><th>Método</th></tr>
+        ${allSales.slice(0,5).map(s=>`
+        <tr>
+          <td style="font-family:var(--mono);font-size:12px">${s.id}</td>
+          <td>${s.time}</td>
+          <td>${s.user.split(' ')[0]}</td>
+          <td style="font-weight:700;font-family:var(--mono)">Bs ${s.total}</td>
+          <td><span class="badge badge-ok">${s.method}</span></td>
+        </tr>`).join('')}
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Alertas de Inventario <span onclick="showPage('inventario')">Gestionar →</span></div>
+      <table>
+        <tr><th>Producto</th><th>Categoría</th><th>Stock</th><th>Estado</th></tr>
+        ${products.filter(p=>p.stock<=p.min).map(p=>`
+        <tr>
+          <td style="font-weight:600">${p.name}</td>
+          <td><span class="badge ${p.cat==='Controlado'?'badge-ctrl2':p.cat==='Natural'?'badge-nat':'badge-lib'}">${p.cat}</span></td>
+          <td style="font-family:var(--mono)">${p.stock}</td>
+          <td><span class="badge ${p.stock===0?'badge-out':'badge-low'}">${p.stock===0?'AGOTADO':'Stock Bajo'}</span></td>
+        </tr>`).join('')}
+      </table>
+    </div>
+  </div>`;
+
+  setTimeout(()=>{
+    chartInstances.ch1=new Chart(document.getElementById('ch1'),{
+      type:'doughnut',
+      data:{
+        labels:['Libre Venta','Controlados','Naturales'],
+        datasets:[{data:[
+          products.filter(p=>p.cat==='Libre').reduce((a,p)=>a+p.sold,0),
+          products.filter(p=>p.cat==='Controlado').reduce((a,p)=>a+p.sold,0),
+          products.filter(p=>p.cat==='Natural').reduce((a,p)=>a+p.sold,0)
+        ],backgroundColor:['#0369A1','#7C3AED','#15803D'],borderWidth:0}]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11},padding:10}}}}
+    });
+    chartInstances.ch2=new Chart(document.getElementById('ch2'),{
+      type:'bar',
+      data:{
+        labels:['Lun','Mar','Mié','Jue','Vie','Sáb','Hoy'],
+        datasets:[{label:'Bs',data:[412,538,290,617,483,720,totalDay],backgroundColor:'rgba(0,196,140,0.8)',borderRadius:6}]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:11}}},x:{grid:{display:false},ticks:{font:{size:11}}}}}
+    });
+  },100);
+}
+
+// ===== INVENTARIO =====
+function renderInventario(){
+  const c=document.getElementById('content');
+  c.innerHTML=`
+  <div class="inv-toolbar">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input placeholder="Buscar producto, código, laboratorio..." id="invSearch" oninput="filterInv()">
+    </div>
+    <button class="filter-btn" id="fb_all" onclick="setInvFilter('all')">Todos (${products.length})</button>
+    <button class="filter-btn" id="fb_Libre" onclick="setInvFilter('Libre')">Libre Venta (${products.filter(p=>p.cat==='Libre').length})</button>
+    <button class="filter-btn active-ctrl" id="fb_Controlado" onclick="setInvFilter('Controlado')">Controlados (${products.filter(p=>p.cat==='Controlado').length})</button>
+    <button class="filter-btn" id="fb_Natural" onclick="setInvFilter('Natural')">Naturales (${products.filter(p=>p.cat==='Natural').length})</button>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden;">
+    <table id="invTable">
+      <tr><th>Código</th><th>Producto</th><th>Laboratorio</th><th>Categoría</th><th>Presentación</th><th>Precio</th><th>Stock</th><th>Vence</th><th>Estado</th><th>Acciones</th></tr>
+    </table>
+  </div>`;
+  invFilter='all';
+  filterInv();
+}
+
+function setInvFilter(f){
+  invFilter=f;
+  document.querySelectorAll('[id^="fb_"]').forEach(b=>{b.className='filter-btn';});
+  const cls={Controlado:'active-ctrl',Libre:'active-lib',Natural:'active-nat',all:''};
+  const el=document.getElementById('fb_'+f);
+  if(el&&cls[f])el.classList.add(cls[f]);
+  filterInv();
+}
+
+function filterInv(){
+  const q=(document.getElementById('invSearch')||{value:''}).value.toLowerCase();
+  const filtered=products.filter(p=>{
+    const match=invFilter==='all'||p.cat===invFilter;
+    const srch=!q||p.name.toLowerCase().includes(q)||p.id.toLowerCase().includes(q)||p.lab.toLowerCase().includes(q);
+    return match&&srch;
+  });
+  const tb=document.getElementById('invTable');
+  if(!tb)return;
+  const rows=tb.querySelectorAll('tr:not(:first-child)');
+  rows.forEach(r=>r.remove());
+  filtered.forEach((p,i)=>{
+    const st=p.stock===0?'<span class="badge badge-out">Agotado</span>':p.stock<=p.min?'<span class="badge badge-low">Stock Bajo</span>':'<span class="badge badge-ok">OK</span>';
+    const catB=p.cat==='Controlado'?'badge-ctrl2':p.cat==='Natural'?'badge-nat':'badge-lib';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td style="font-family:var(--mono);font-size:12px">${p.id}</td>
+      <td style="font-weight:600">${p.name}</td>
+      <td style="color:var(--muted)">${p.lab}</td>
+      <td><span class="badge ${catB}">${p.cat}</span></td>
+      <td style="font-size:12px">${p.pres}</td>
+      <td style="font-family:var(--mono);font-weight:700">Bs ${p.price}</td>
+      <td style="font-family:var(--mono);font-weight:700;color:${p.stock<=p.min?'var(--red)':'var(--text)'}">${p.stock}</td>
+      <td style="font-size:12px">${p.exp}</td>
+      <td>${st}</td>
+      <td>
+        <button onclick="editProduct(${products.indexOf(p)})" style="background:none;border:none;cursor:pointer;color:var(--acc2);font-size:13px;font-weight:600;font-family:var(--font)">Editar</button>
+        <button onclick="deleteProduct(${products.indexOf(p)})" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:13px;font-weight:600;font-family:var(--font);margin-left:8px">Eliminar</button>
+      </td>`;
+    tb.appendChild(tr);
+  });
+}
+
+// ===== VENTAS / POS =====
+function renderVentas(){
+  const c=document.getElementById('content');
+  c.innerHTML=`
+  <div class="pos-layout">
+    <div class="pos-left">
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div class="search-box" style="max-width:100%;flex:1;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input placeholder="Buscar producto para agregar al carrito..." id="posSearch" oninput="filterPos()">
+        </div>
+        <button class="filter-btn" id="posf_all" onclick="setPosFilter('all')">Todos</button>
+        <button class="filter-btn" id="posf_Libre" onclick="setPosFilter('Libre')">Libre</button>
+        <button class="filter-btn active-ctrl" id="posf_Controlado" onclick="setPosFilter('Controlado')">Controlado</button>
+        <button class="filter-btn" id="posf_Natural" onclick="setPosFilter('Natural')">Natural</button>
+      </div>
+      <div class="prod-grid" id="prodGrid"></div>
+    </div>
+    <div class="pos-right">
+      <div class="pos-header">
+        <h3>🛒 Carrito de Venta</h3>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Vendedor: ${currentUser.name}</div>
+      </div>
+      <div class="cart-items" id="cartItems"></div>
+      <div class="pos-footer">
+        <div class="totals-row"><span>Subtotal</span><span id="cartSubtotal">Bs 0.00</span></div>
+        <div class="totals-row"><span>IVA (16%)</span><span id="cartIva">Bs 0.00</span></div>
+        <div class="totals-total"><span>TOTAL</span><span id="cartTotal">Bs 0.00</span></div>
+        <div style="margin:10px 0 6px;">
+          <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Método de Pago</label>
+          <select id="payMethod" style="width:100%;padding:9px;border:1.5px solid var(--border);border-radius:9px;font-family:var(--font);font-size:13px;">
+            <option>Efectivo</option><option>Tarjeta</option><option>Transferencia</option>
+          </select>
+        </div>
+        <button class="btn-checkout" onclick="checkout()">✓ Procesar Venta</button>
+        <button class="btn-clear" onclick="resetCart()">Limpiar Carrito</button>
+      </div>
+    </div>
+  </div>`;
+  posFilter='all';
+  renderPosGrid();
+  renderCart();
+}
+
+let posFilter='all';
+function setPosFilter(f){
+  posFilter=f;
+  document.querySelectorAll('[id^="posf_"]').forEach(b=>{b.className='filter-btn';});
+  const cls={Controlado:'active-ctrl',Libre:'active-lib',Natural:'active-nat'};
+  if(cls[f])document.getElementById('posf_'+f).classList.add(cls[f]);
+  renderPosGrid();
+}
+function filterPos(){renderPosGrid();}
+function renderPosGrid(){
+  const q=(document.getElementById('posSearch')||{value:''}).value.toLowerCase();
+  const grid=document.getElementById('prodGrid');
+  if(!grid)return;
+  const filtered=products.filter(p=>{
+    const match=posFilter==='all'||p.cat===posFilter;
+    const srch=!q||p.name.toLowerCase().includes(q)||p.lab.toLowerCase().includes(q);
+    return match&&srch&&p.stock>0;
+  });
+  grid.innerHTML=filtered.map(p=>{
+    const catC=p.cat==='Controlado'?'#7C3AED':p.cat==='Natural'?'#15803D':'#0369A1';
+    return`<div class="prod-card" onclick="addToCart('${p.id}')">
+      <div style="font-size:10px;font-weight:700;color:${catC};margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">${p.cat}</div>
+      <div class="prod-card-name">${p.name}</div>
+      <div class="prod-card-lab">${p.lab} · ${p.pres}</div>
+      <div class="prod-card-price">Bs ${p.price}</div>
+      <div class="prod-card-stock">Stock: ${p.stock} unid.</div>
+    </div>`;
+  }).join('');
+}
+function addToCart(id){
+  const p=products.find(x=>x.id===id);
+  if(!p||p.stock<=0)return;
+  const ex=cart.find(x=>x.id===id);
+  if(ex){if(ex.qty<p.stock)ex.qty++;}
+  else cart.push({id,name:p.name,cat:p.cat,price:p.price,qty:1});
+  renderCart();
+}
+function changeQty(id,delta){
+  const i=cart.findIndex(x=>x.id===id);
+  if(i<0)return;
+  cart[i].qty+=delta;
+  if(cart[i].qty<=0)cart.splice(i,1);
+  renderCart();
+}
+function removeCart(id){cart=cart.filter(x=>x.id!==id);renderCart();}
+function renderCart(){
+  const el=document.getElementById('cartItems');
+  if(!el)return;
+  if(cart.length===0){el.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;">Agrega productos al carrito</div>';updateTotals();return;}
+  el.innerHTML=cart.map(item=>`
+    <div class="cart-item">
+      <div style="flex:1;">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-cat">${item.cat}</div>
+      </div>
+      <div class="qty-ctrl">
+        <button class="qty-btn" onclick="changeQty('${item.id}',-1)">−</button>
+        <span class="qty-num">${item.qty}</span>
+        <button class="qty-btn" onclick="changeQty('${item.id}',1)">+</button>
+      </div>
+      <span class="cart-price">Bs ${(item.price*item.qty).toFixed(2)}</span>
+      <span class="cart-del" onclick="removeCart('${item.id}')">×</span>
+    </div>`).join('');
+  updateTotals();
+}
+function updateTotals(){
+  const sub=cart.reduce((a,x)=>a+x.price*x.qty,0);
+  const iva=sub*0.16;
+  document.getElementById('cartSubtotal').textContent=`Bs ${sub.toFixed(2)}`;
+  document.getElementById('cartIva').textContent=`Bs ${iva.toFixed(2)}`;
+  document.getElementById('cartTotal').textContent=`Bs ${(sub+iva).toFixed(2)}`;
+}
+function checkout(){
+  if(cart.length===0){alert('El carrito está vacío');return;}
+  const method=document.getElementById('payMethod').value;
+  const sub=cart.reduce((a,x)=>a+x.price*x.qty,0);
+  const total=sub*1.16;
+  const id=`VT-${String(saleCounter++).padStart(4,'0')}`;
+  const now=new Date();
+  const sale={id,date:now.toISOString().split('T')[0],time:now.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'}),user:currentUser.name,items:cart.map(x=>({name:x.name,qty:x.qty,price:x.price})),total:Math.round(total*100)/100,method};
+  allSales.unshift(sale);
+  cart.forEach(x=>{const p=products.find(pp=>pp.id===x.id);if(p)p.stock-=x.qty;});
+  updateLowBadge();
+  const rcpt=`<div class="receipt">
+    <div class="receipt-header">
+      <div style="font-size:24px;margin-bottom:4px">💊</div>
+      <h2>PharmaCore SAP</h2>
+      <p>Recibo de Venta · ${id}</p>
+      <p style="margin-top:4px">${now.toLocaleDateString('es')} ${now.toLocaleTimeString('es')}</p>
+      <p>Atendido por: ${currentUser.name}</p>
+    </div>
+    ${sale.items.map(it=>`<div class="receipt-item"><span>${it.name} ×${it.qty}</span><span style="font-family:var(--mono)">Bs ${(it.price*it.qty).toFixed(2)}</span></div>`).join('')}
+    <div class="receipt-item"><span>Subtotal</span><span style="font-family:var(--mono)">Bs ${sub.toFixed(2)}</span></div>
+    <div class="receipt-item"><span>IVA 16%</span><span style="font-family:var(--mono)">Bs ${(sub*0.16).toFixed(2)}</span></div>
+    <div class="receipt-total"><span>TOTAL</span><span style="font-family:var(--mono);color:var(--acc2)">Bs ${sale.total.toFixed(2)}</span></div>
+    <div style="text-align:center;margin-top:16px;font-size:12px;color:var(--muted)">Método: ${method} · ¡Gracias por su compra!</div>
+  </div>`;
+  document.getElementById('receiptContent').innerHTML=rcpt;
+  showModal('receiptModal');
+}
+function resetCart(){cart=[];renderCart();renderPosGrid();}
+
+// ===== HISTORIAL =====
+function renderHistorial(){
+  const c=document.getElementById('content');
+  const total=allSales.reduce((a,s)=>a+s.total,0);
+  const ctrl=allSales.filter(s=>s.items.some(i=>products.find(p=>p.name===i.name)?.cat==='Controlado')).length;
+  c.innerHTML=`
+  <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+    <div class="kpi-card"><div class="kpi-label">Total Ventas</div><div class="kpi-value">${allSales.length}</div><div class="kpi-delta" style="color:var(--muted)">transacciones registradas</div></div>
+    <div class="kpi-card"><div class="kpi-label">Ingresos Totales</div><div class="kpi-value">Bs ${total.toLocaleString()}</div><div class="kpi-delta up">↑ promedio Bs ${Math.round(total/allSales.length)} por venta</div></div>
+    <div class="kpi-card"><div class="kpi-label">Con Controlados</div><div class="kpi-value">${ctrl}</div><div class="kpi-delta" style="color:var(--ctrl)">${ctrl} ventas con medicación controlada</div></div>
+  </div>
+  <div class="full-card" style="padding:0;overflow:hidden;">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;">
+      <span style="font-size:14px;font-weight:700;">Registro de Ventas</span>
+      <span style="font-size:12px;color:var(--muted);margin-left:4px">${allSales.length} registros</span>
+    </div>
+    <table>
+      <tr><th>Código</th><th>Fecha</th><th>Hora</th><th>Usuario</th><th>Productos</th><th>Total</th><th>Método</th></tr>
+      ${allSales.map(s=>`
+      <tr>
+        <td style="font-family:var(--mono);font-size:12px;font-weight:700">${s.id}</td>
+        <td>${s.date}</td>
+        <td style="font-family:var(--mono)">${s.time}</td>
+        <td>${s.user}</td>
+        <td style="font-size:12px;color:var(--muted)">${s.items.map(i=>`${i.name} ×${i.qty}`).join(', ')}</td>
+        <td style="font-weight:700;font-family:var(--mono);color:var(--acc2)">Bs ${s.total.toFixed(2)}</td>
+        <td><span class="badge badge-ok">${s.method}</span></td>
+      </tr>`).join('')}
+    </table>
+  </div>`;
+}
+
+// ===== ANÁLISIS =====
+function renderAnalisis(){
+  const c=document.getElementById('content');
+  const catSales={Libre:0,Controlado:0,Natural:0};
+  allSales.forEach(s=>s.items.forEach(it=>{
+    const p=products.find(pp=>pp.name===it.name);
+    if(p)catSales[p.cat]=(catSales[p.cat]||0)+(it.price*it.qty);
+  }));
+  const topProd=[...products].sort((a,b)=>b.sold-a.sold).slice(0,6);
+  c.innerHTML=`
+  <div class="kpi-grid">
+    <div class="kpi-card"><div class="kpi-label">Ingresos Libre Venta</div><div class="kpi-value">Bs ${(catSales.Libre||0).toFixed(0)}</div><div class="kpi-delta up">↑ mayor categoría</div></div>
+    <div class="kpi-card"><div class="kpi-label">Ingresos Controlados</div><div class="kpi-value">Bs ${(catSales.Controlado||0).toFixed(0)}</div><div class="kpi-delta" style="color:var(--ctrl)">requiere registro</div></div>
+    <div class="kpi-card"><div class="kpi-label">Ingresos Naturales</div><div class="kpi-value">Bs ${(catSales.Natural||0).toFixed(0)}</div><div class="kpi-delta" style="color:var(--nat)">segmento creciente</div></div>
+    <div class="kpi-card"><div class="kpi-label">Ticket Promedio</div><div class="kpi-value">Bs ${allSales.length?Math.round(allSales.reduce((a,s)=>a+s.total,0)/allSales.length):0}</div><div class="kpi-delta" style="color:var(--muted)">por transacción</div></div>
+  </div>
+  <div class="section-row">
+    <div class="card">
+      <div class="card-title">Distribución de Ingresos por Categoría</div>
+      <div style="height:240px;position:relative"><canvas id="chA1" role="img" aria-label="Distribución por categoría">Libre, Controlado, Natural</canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Comparativo Mensual (simulado)</div>
+      <div style="height:240px;position:relative"><canvas id="chA2" role="img" aria-label="Comparativo mensual">Meses del año</canvas></div>
+    </div>
+  </div>
+  <div class="full-card">
+    <div class="card-title">Top 6 Productos Más Vendidos</div>
+    <div style="height:260px;position:relative"><canvas id="chA3" role="img" aria-label="Top productos más vendidos">Ranking de productos</canvas></div>
+  </div>
+  <div class="section-row" style="margin-top:20px">
+    <div class="card">
+      <div class="card-title">Métodos de Pago</div>
+      <div style="height:200px;position:relative"><canvas id="chA4" role="img" aria-label="Métodos de pago">Efectivo, Tarjeta, Transferencia</canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Stock por Categoría</div>
+      <div style="height:200px;position:relative"><canvas id="chA5" role="img" aria-label="Stock por categoría">Distribución stock</canvas></div>
+    </div>
+  </div>`;
+
+  setTimeout(()=>{
+    const payCount={Efectivo:0,Tarjeta:0,Transferencia:0};
+    allSales.forEach(s=>payCount[s.method]=(payCount[s.method]||0)+1);
+    chartInstances.chA1=new Chart(document.getElementById('chA1'),{type:'pie',data:{labels:['Libre Venta','Controlados','Naturales'],datasets:[{data:[catSales.Libre||1,catSales.Controlado||1,catSales.Natural||1],backgroundColor:['#0369A1','#7C3AED','#15803D'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11},padding:12}}}}});
+    chartInstances.chA2=new Chart(document.getElementById('chA2'),{type:'line',data:{labels:['Oct','Nov','Dic','Ene','Feb','Mar','Abr'],datasets:[{label:'Ingresos Bs',data:[2100,2450,3100,1980,2700,2900,allSales.reduce((a,s)=>a+s.total,0).toFixed(0)],borderColor:'#00C48C',backgroundColor:'rgba(0,196,140,0.1)',fill:true,tension:.4,pointBackgroundColor:'#00C48C',pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:11}}},x:{grid:{display:false},ticks:{font:{size:11}}}}}});
+    chartInstances.chA3=new Chart(document.getElementById('chA3'),{type:'bar',data:{labels:topProd.map(p=>p.name.substring(0,16)),datasets:[{label:'Unidades vendidas',data:topProd.map(p=>p.sold),backgroundColor:topProd.map(p=>p.cat==='Controlado'?'rgba(124,58,237,0.8)':p.cat==='Natural'?'rgba(21,128,61,0.8)':'rgba(3,105,161,0.8)'),borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:11}}},x:{grid:{display:false},ticks:{font:{size:10},maxRotation:20}}}}});
+    chartInstances.chA4=new Chart(document.getElementById('chA4'),{type:'doughnut',data:{labels:['Efectivo','Tarjeta','Transferencia'],datasets:[{data:[payCount.Efectivo||1,payCount.Tarjeta||1,payCount.Transferencia||1],backgroundColor:['#00C48C','#2563EB','#D97706'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:12,font:{size:11},padding:10}}}}});
+    chartInstances.chA5=new Chart(document.getElementById('chA5'),{type:'bar',data:{labels:['Libre Venta','Controlados','Naturales'],datasets:[{label:'Stock actual',data:[products.filter(p=>p.cat==='Libre').reduce((a,p)=>a+p.stock,0),products.filter(p=>p.cat==='Controlado').reduce((a,p)=>a+p.stock,0),products.filter(p=>p.cat==='Natural').reduce((a,p)=>a+p.stock,0)],backgroundColor:['rgba(3,105,161,0.8)','rgba(124,58,237,0.8)','rgba(21,128,61,0.8)'],borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:11}}},x:{grid:{display:false},ticks:{font:{size:11}}}}}});
+  },100);
+}
+
+// ===== USUARIOS =====
+function renderUsuarios(){
+  const c=document.getElementById('content');
+  c.innerHTML=`
+  <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+    <div class="kpi-card"><div class="kpi-label">Total Usuarios</div><div class="kpi-value">${users.length}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Activos</div><div class="kpi-value" style="color:var(--acc2)">${users.filter(u=>u.active).length}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Ventas Totales</div><div class="kpi-value">${users.reduce((a,u)=>a+u.sales,0)}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Sesión Actual</div><div class="kpi-value" style="font-size:16px">${currentUser.name.split(' ')[0]}</div></div>
+  </div>
+  <div class="full-card" style="padding:0;overflow:hidden;">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border);">
+      <span style="font-size:14px;font-weight:700;">Directorio de Usuarios</span>
+    </div>
+    <table>
+      <tr><th>Usuario</th><th>Rol</th><th>Estado</th><th>Desde</th><th>Ventas</th><th>Permisos</th><th>Acciones</th></tr>
+      ${users.map(u=>`
+      <tr>
+        <td>
+          <span class="avatar-sm" style="background:${u.color}">${u.avatar}</span>
+          <span style="font-weight:600">${u.name}</span>
+        </td>
+        <td>${u.role}</td>
+        <td>
+          <span class="status-dot" style="background:${u.active?'#00C48C':'#9CA3AF'}"></span>
+          ${u.active?'Activo':'Inactivo'}
+        </td>
+        <td style="font-size:12px;color:var(--muted)">${u.since}</td>
+        <td style="font-family:var(--mono);font-weight:600">${u.sales}</td>
+        <td><span class="badge ${u.perms==='Total'?'badge-ok':u.perms.includes('Inv')?'badge-lib':'badge-low'}">${u.perms}</span></td>
+        <td>
+          <button onclick="toggleUser(${u.id})" style="background:none;border:none;cursor:pointer;color:${u.active?'var(--red)':'var(--acc2)'};font-size:12px;font-weight:600;font-family:var(--font)">${u.active?'Desactivar':'Activar'}</button>
+        </td>
+      </tr>`).join('')}
+    </table>
+  </div>`;
+}
+
+// ===== MODAL UTILS =====
+function showModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+function editProduct(i){
+  editIdx=i;const p=products[i];
+  document.getElementById('modalTitle').textContent='Editar Producto';
+  document.getElementById('f_name').value=p.name;
+  document.getElementById('f_lab').value=p.lab;
+  document.getElementById('f_cat').value=p.cat;
+  document.getElementById('f_pres').value=p.pres;
+  document.getElementById('f_price').value=p.price;
+  document.getElementById('f_stock').value=p.stock;
+  document.getElementById('f_min').value=p.min;
+  document.getElementById('f_exp').value=p.exp;
+  document.getElementById('f_prov').value=p.prov;
+  showModal('productModal');
+}
+function saveProduct(){
+  const data={
+    name:document.getElementById('f_name').value,
+    lab:document.getElementById('f_lab').value,
+    cat:document.getElementById('f_cat').value,
+    pres:document.getElementById('f_pres').value,
+    price:parseFloat(document.getElementById('f_price').value)||0,
+    stock:parseInt(document.getElementById('f_stock').value)||0,
+    min:parseInt(document.getElementById('f_min').value)||10,
+    exp:document.getElementById('f_exp').value,
+    prov:document.getElementById('f_prov').value,
+    sold:0
+  };
+  if(!data.name){alert('Ingrese el nombre del producto');return;}
+  if(editIdx>=0){Object.assign(products[editIdx],data);}
+  else{data.id='PC'+String(products.length+1).padStart(3,'0');products.push(data);}
+  editIdx=-1;
+  closeModal('productModal');
+  updateLowBadge();
+  renderInventario();
+}
+function deleteProduct(i){
+  if(confirm(`¿Eliminar "${products[i].name}"?`)){products.splice(i,1);updateLowBadge();renderInventario();}
+}
+function updateLowBadge(){
+  const n=products.filter(p=>p.stock<=p.min).length;
+  document.getElementById('lowStockBadge').textContent=n;
+  document.getElementById('lowStockBadge').style.display=n?'':'none';
+}
+function toggleUser(id){
+  users[id].active=!users[id].active;
+  renderUsuarios();
+}
+function doLogin(){
+  const idx=parseInt(document.getElementById('loginUser').value);
+  currentUser=users[idx];
+  document.getElementById('sideUserName').textContent=currentUser.name;
+  document.getElementById('sideUserRole').textContent=currentUser.role;
+  document.getElementById('sideUserAvatar').textContent=currentUser.avatar;
+  document.getElementById('sideUserAvatar').style.background=currentUser.color;
+  closeModal('loginModal');
+}
+
+// ===== INIT =====
+updateLowBadge();
+renderPage('dashboard');
+document.getElementById('topAddBtn').style.display='flex';
+</script>
+</body>
+</html>
