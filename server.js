@@ -12,7 +12,7 @@ app.use(express.static('.'));
 // ============================================================
 const ROLE_PERMISSIONS = {
   'Administrador': ['all'],
-  'Farmacéutico Senior': ['inventory', 'sales', 'analysis', 'expiration', 'products'],
+  'Farmacéutico Senior': ['inventory', 'sales', 'sales_history', 'analysis', 'expiration', 'products', 'ai'],
   'Cajero': ['sales', 'products_read'],
   'Auxiliar': ['dashboard', 'inventory_read'],
 };
@@ -787,8 +787,8 @@ app.post('/api/ai/chat', (req, res) => {
     const { products = [], sales = [], users = [] } = context;
     const intent = detectIntent(question, conversationHistory);
 
-    // Permission check
-    const restrictedIntents = { users: 'all', business_overview: 'all', anomaly: 'analysis' };
+    // Permission check — aplicado a TODOS los intents restringidos, no solo 3 (prompt sec. 14)
+    const restrictedIntents = { users: 'all', business_overview: 'all', anomaly: 'inventory', recommendations: 'inventory', category: 'analysis', payment: 'analysis', sales: 'sales_history', sales_period: 'analysis', low_movement: 'inventory', top_products: 'sales_history' };
     const requiredPerm = restrictedIntents[intent];
     if (requiredPerm && !hasPermission(userRole, requiredPerm)) {
       return res.json({

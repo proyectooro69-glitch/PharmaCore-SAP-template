@@ -171,6 +171,73 @@
   ::-webkit-scrollbar{width:5px;}
   ::-webkit-scrollbar-track{background:transparent;}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+
+  /* ===== PHARMACORE AI MODULE ===== */
+  .ai-hero{margin-bottom:22px;}
+  .ai-hero h1{font-size:22px;font-weight:700;display:flex;align-items:center;gap:10px;}
+  .ai-hero p{font-size:13px;color:var(--muted);margin-top:4px;}
+  .ai-insights-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+  .ai-insight-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;}
+  .ai-insight-card .aic-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .ai-insight-card .aic-icon{font-size:18px;}
+  .aic-priority{font-size:9px;font-weight:800;letter-spacing:.5px;padding:2px 8px;border-radius:20px;text-transform:uppercase;}
+  .aic-priority.ALTO{background:#FEE2E2;color:#991B1B;}
+  .aic-priority.MEDIO{background:#FEF3C7;color:#92400E;}
+  .aic-priority.OK,.aic-priority.INFO{background:#DCFCE7;color:#166534;}
+  .ai-insight-card .aic-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+  .ai-insight-card .aic-summary{font-size:14px;font-weight:700;margin-bottom:6px;}
+  .ai-insight-card .aic-detail{font-size:11.5px;color:var(--muted);margin-bottom:8px;line-height:1.4;}
+  .ai-insight-card .aic-rec{font-size:11.5px;color:var(--acc2);font-weight:600;line-height:1.4;}
+  .ai-chat-layout{display:grid;grid-template-columns:220px 1fr;gap:20px;height:calc(100vh - 230px);min-height:420px;}
+  .ai-prompts{display:flex;flex-direction:column;gap:8px;overflow-y:auto;}
+  .ai-prompt-btn{text-align:left;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:12px;font-family:var(--font);color:var(--text);cursor:pointer;line-height:1.35;}
+  .ai-prompt-btn:hover{border-color:var(--acc);background:#F0FDF9;}
+  .ai-chat-panel{background:var(--card);border:1px solid var(--border);border-radius:14px;display:flex;flex-direction:column;overflow:hidden;}
+  .ai-messages{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px;}
+  .ai-msg-user{align-self:flex-end;background:var(--acc);color:#fff;padding:10px 14px;border-radius:12px 12px 2px 12px;font-size:13px;max-width:70%;}
+  .ai-msg-bot{align-self:flex-start;max-width:92%;}
+  .ai-empty-state{margin:auto;text-align:center;color:var(--muted);font-size:12.5px;padding:20px;}
+  .air-section{display:flex;gap:9px;padding:10px 12px;border-radius:10px;margin-bottom:8px;font-size:12.5px;line-height:1.5;background:#F7FAF8;}
+  .air-icon{flex-shrink:0;}
+  .air-source{background:#F0F5FF;}
+  .air-finding{background:#FFF7ED;}
+  .air-data{background:#F5F3FF;}
+  .air-analysis{background:#ECFEFF;}
+  .air-recommendation{background:#ECFDF5;font-weight:600;}
+  .air-warning{background:#FFFBEB;}
+  .air-critical{background:#FEF2F2;}
+  .air-success{background:#F0FDF4;}
+  .air-info{background:#EFF6FF;}
+  .air-table-wrap{margin-top:6px;overflow-x:auto;}
+  table.air-table{width:100%;font-size:11.5px;border-collapse:collapse;}
+  table.air-table th{padding:5px 8px;text-align:left;color:var(--muted);border-bottom:1px solid var(--border);font-size:9.5px;text-transform:uppercase;}
+  table.air-table td{padding:5px 8px;border-bottom:1px solid #EEF3F0;}
+  .ai-empty{color:var(--muted);font-size:12px;}
+  .ai-chat-input-row{display:flex;gap:8px;padding:14px;border-top:1px solid var(--border);}
+  .ai-chat-input-row input{flex:1;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:var(--font);outline:none;}
+  .ai-chat-input-row input:focus{border-color:var(--acc);}
+  .ai-chat-input-row button{padding:0 20px;border:none;border-radius:10px;background:var(--acc);color:#fff;font-weight:700;font-size:13px;cursor:pointer;font-family:var(--font);}
+  .ai-chat-input-row button:hover{background:var(--acc2);}
+  .ai-dash-zone{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:24px;}
+  .ai-dash-zone .card-title{margin-bottom:14px;}
+  .ai-dash-mini{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  .ai-dash-mini-card{border:1px solid var(--border);border-radius:10px;padding:12px;}
+  .ai-dash-mini-card .m-title{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;}
+  .ai-dash-mini-card .m-val{font-size:13px;font-weight:700;margin-bottom:3px;}
+  .ai-dash-mini-card .m-sub{font-size:11px;color:var(--muted);}
+
+  /* ===== CASE STUDY (adaptado, sin dependencias de backend) ===== */
+  .cs-hero{background:linear-gradient(120deg,var(--nav) 0%,#0A5637 100%);color:#fff;border-radius:16px;padding:36px 32px;margin-bottom:22px;}
+  .cs-hero h1{font-size:30px;font-weight:700;letter-spacing:-1px;}
+  .cs-hero p{font-size:14px;color:rgba(255,255,255,.72);margin-top:8px;}
+  .cs-section{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:16px;}
+  .cs-section h3{font-size:14px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .cs-section h3 i{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--acc2);}
+  .cs-section p,.cs-section li{font-size:13px;line-height:1.75;color:var(--text);}
+  .cs-section ul{margin:6px 0 0 18px;}
+  .cs-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .cs-flow{font-family:var(--mono);font-size:12px;background:#F7FAF8;border:1px solid var(--border);border-radius:11px;padding:16px;line-height:2;white-space:pre-wrap;}
+  .cs-tag{display:inline-block;background:#F1F5F3;border:1px solid var(--border);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:600;margin:3px 4px 0 0;}
 </style>
 </head>
 <body>
@@ -198,31 +265,39 @@
   </div>
   <nav>
     <div class="nav-section">Principal</div>
-    <div class="nav-item active" onclick="showPage('dashboard')">
+    <div class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       Dashboard
     </div>
     <div class="nav-section">Operaciones</div>
-    <div class="nav-item" onclick="showPage('ventas')">
+    <div class="nav-item" data-page="ventas" onclick="showPage('ventas')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
       Punto de Venta
     </div>
-    <div class="nav-item" onclick="showPage('inventario')">
+    <div class="nav-item" data-page="inventario" onclick="showPage('inventario')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
       Inventario
       <span class="nav-badge" id="lowStockBadge">3</span>
     </div>
-    <div class="nav-item" onclick="showPage('historial')">
+    <div class="nav-item" data-page="historial" onclick="showPage('historial')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
       Historial de Ventas
     </div>
     <div class="nav-section">Análisis</div>
-    <div class="nav-item" onclick="showPage('analisis')">
+    <div class="nav-item" data-page="analisis" onclick="showPage('analisis')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       Análisis de Datos
     </div>
-    <div class="nav-section">Administración</div>
-    <div class="nav-item" onclick="showPage('usuarios')">
+    <div class="nav-item" data-page="ai" onclick="showPage('ai')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8V4H8"/><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M2 14h2M20 14h2M9 13v2M15 13v2"/></svg>
+      PharmaCore AI
+    </div>
+    <div class="nav-item" data-page="casestudy" onclick="showPage('casestudy')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Case Study
+    </div>
+    <div class="nav-section" id="navSectionAdmin">Administración</div>
+    <div class="nav-item" data-page="usuarios" onclick="showPage('usuarios')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Usuarios
     </div>
@@ -354,24 +429,60 @@ let allSales=[
 
 let saleCounter=allSales.length+1;
 
+// ===== ROLE PERMISSIONS (mirrors server.js ROLE_PERMISSIONS — Manual v2.0 sec. 2 / prompt sec. 14) =====
+const ROLE_PERMISSIONS={
+  'Administrador':['all'],
+  'Farmacéutico Senior':['inventory','sales','sales_history','analysis','expiration','products','ai'],
+  'Cajero':['sales','products_read'],
+  'Auxiliar':['dashboard','inventory_read'],
+};
+const PAGE_PERMS={
+  dashboard:'dashboard', ventas:'sales', inventario:'inventory_read',
+  historial:'sales_history', analisis:'analysis', usuarios:'all', ai:'ai',
+};
+function hasPermission(role,resource){
+  const perms=ROLE_PERMISSIONS[role]||[];
+  if(perms.includes('all'))return true;
+  if(perms.includes(resource))return true;
+  if(resource.endsWith('_read')&&perms.includes(resource.replace('_read','')))return true;
+  return false;
+}
+function hasPagePermission(role,page){
+  if(page==='dashboard')return true; // Todos los roles ven Dashboard
+  const res=PAGE_PERMS[page];
+  return res?hasPermission(role,res):true;
+}
+function applyRolePermissions(){
+  const role=currentUser.role;
+  document.querySelectorAll('.nav-item[data-page]').forEach(el=>{
+    const page=el.getAttribute('data-page');
+    el.style.display=hasPagePermission(role,page)?'':'none';
+  });
+  // Ocultar encabezado "Administración" si Usuarios no es visible para el rol actual
+  const adminHeader=document.getElementById('navSectionAdmin');
+  if(adminHeader)adminHeader.style.display=hasPagePermission(role,'usuarios')?'':'none';
+  // Si la página activa ya no es accesible con el nuevo rol, volver al Dashboard
+  if(!hasPagePermission(role,currentPage))showPage('dashboard');
+}
+
 // ===== NAVIGATION =====
 let currentPage='dashboard';
 let invFilter='all';
 let chartInstances={};
 
 function showPage(page){
+  if(!hasPagePermission(currentUser.role,page)){page='dashboard';}
   currentPage=page;
   document.querySelectorAll('.nav-item').forEach(el=>{el.classList.remove('active');});
-  const items=document.querySelectorAll('.nav-item');
-  const pages=['dashboard','ventas','inventario','historial','analisis','usuarios'];
-  const idx=pages.indexOf(page);
-  if(idx>=0)items[idx].classList.add('active');
-  const titles={dashboard:'Dashboard',ventas:'Punto de Venta',inventario:'Gestión de Inventario',historial:'Historial de Ventas',analisis:'Análisis de Datos',usuarios:'Gestión de Usuarios'};
+  const activeEl=document.querySelector('.nav-item[data-page="'+page+'"]');
+  if(activeEl)activeEl.classList.add('active');
+  const titles={dashboard:'Dashboard',ventas:'Punto de Venta',inventario:'Gestión de Inventario',historial:'Historial de Ventas',analisis:'Análisis de Datos',usuarios:'Gestión de Usuarios',ai:'PharmaCore AI',casestudy:'Case Study'};
   document.getElementById('pageTitle').textContent=titles[page]||page;
-  const addBtns={dashboard:'+ Actualizar',ventas:'',inventario:'+ Nuevo Producto',historial:'',analisis:'',usuarios:'+ Nuevo Usuario'};
+  const addBtns={dashboard:'+ Actualizar',ventas:'',inventario:'+ Nuevo Producto',historial:'',analisis:'',usuarios:'+ Nuevo Usuario',ai:'',casestudy:''};
   const btn=document.getElementById('topAddBtn');
+  const canAddProduct=page==='inventario'&&hasPermission(currentUser.role,'inventory');
   btn.textContent=addBtns[page]||'';
-  btn.style.display=addBtns[page]?'flex':'none';
+  btn.style.display=(addBtns[page]&&(page!=='inventario'||canAddProduct))?'flex':'none';
   Object.values(chartInstances).forEach(c=>{try{c.destroy();}catch(e){}});
   chartInstances={};
   renderPage(page);
@@ -393,7 +504,7 @@ setInterval(updateClock,1000);updateClock();
 // ===== RENDER PAGES =====
 function renderPage(page){
   const c=document.getElementById('content');
-  const fns={dashboard:renderDashboard,ventas:renderVentas,inventario:renderInventario,historial:renderHistorial,analisis:renderAnalisis,usuarios:renderUsuarios};
+  const fns={dashboard:renderDashboard,ventas:renderVentas,inventario:renderInventario,historial:renderHistorial,analisis:renderAnalisis,usuarios:renderUsuarios,ai:renderAI,casestudy:renderCaseStudy};
   c.innerHTML='';
   if(fns[page])fns[page]();
 }
@@ -407,6 +518,7 @@ function renderDashboard(){
   const lowStock=products.filter(p=>p.stock>0&&p.stock<=p.min).length;
   const outStock=products.filter(p=>p.stock===0).length;
   const ctrl=products.filter(p=>p.cat==='Controlado').length;
+  const dashAIInsights=hasPermission(currentUser.role,'ai')?generateAIInsights().filter(i=>['stock_risk','expiration_risk','sales_trend','ai_recommendations'].includes(i.id)):[];
 
   c.innerHTML=`
   <div class="alert-banner warn" id="lowAlert" style="${lowStock===0?'display:none':''}">
@@ -449,6 +561,18 @@ function renderDashboard(){
       <div class="chart-wrap"><canvas id="ch2" role="img" aria-label="Ingresos diarios últimos 7 días">Ingresos diarios</canvas></div>
     </div>
   </div>
+
+  ${hasPermission(currentUser.role,'ai')?`
+  <div class="ai-dash-zone">
+    <div class="card-title">🤖 AI Executive Insights <span onclick="showPage('ai')">Ver todo en PharmaCore AI →</span></div>
+    <div class="ai-dash-mini">${dashAIInsights.map(ins=>`
+      <div class="ai-dash-mini-card">
+        <div class="m-title">${ins.icon} ${ins.title}</div>
+        <div class="m-val">${ins.summary}</div>
+        <div class="m-sub">${ins.recommendation}</div>
+      </div>`).join('')}
+    </div>
+  </div>`:''}
 
   <div class="section-row">
     <div class="card">
@@ -561,10 +685,10 @@ function filterInv(){
       <td style="font-family:var(--mono);font-weight:700;color:${p.stock<=p.min?'var(--red)':'var(--text)'}">${p.stock}</td>
       <td style="font-size:12px">${p.exp}</td>
       <td>${st}</td>
-      <td>
+      <td>${hasPermission(currentUser.role,'inventory')?`
         <button onclick="editProduct(${products.indexOf(p)})" style="background:none;border:none;cursor:pointer;color:var(--acc2);font-size:13px;font-weight:600;font-family:var(--font)">Editar</button>
         <button onclick="deleteProduct(${products.indexOf(p)})" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:13px;font-weight:600;font-family:var(--font);margin-left:8px">Eliminar</button>
-      </td>`;
+      `:`<span style="color:var(--muted);font-size:11px;">Solo lectura</span>`}</td>`;
     tb.appendChild(tr);
   });
 }
@@ -653,7 +777,11 @@ function addToCart(id){
 function changeQty(id,delta){
   const i=cart.findIndex(x=>x.id===id);
   if(i<0)return;
-  cart[i].qty+=delta;
+  const p=products.find(pp=>pp.id===id);
+  const maxStock=p?p.stock:Infinity;
+  const next=cart[i].qty+delta;
+  if(delta>0&&next>maxStock)return; // bloqueo de sobreventa (Manual v2.0, sec. 4.1 / 5.2)
+  cart[i].qty=next;
   if(cart[i].qty<=0)cart.splice(i,1);
   renderCart();
 }
@@ -837,11 +965,525 @@ function renderUsuarios(){
   </div>`;
 }
 
+// ============================================================
+// PHARMACORE AI — TOOL LAYER
+// Puerto a cliente del motor de server.js (mismo contrato de datos)
+// para que funcione en el hosting estático de Netlify sin backend Node.
+// Ver server.js para la versión de referencia pensada para un futuro
+// despliegue con servidor (Express) o como MCP tools (prompt sec. 13/21).
+// ============================================================
+
+function get_inventory_summary(products){
+  const total=products.length;
+  const outOfStock=products.filter(p=>p.stock===0);
+  const lowStock=products.filter(p=>p.stock>0&&p.stock<=p.min);
+  const healthy=products.filter(p=>p.stock>p.min);
+  const totalUnits=products.reduce((a,p)=>a+p.stock,0);
+  const totalValue=products.reduce((a,p)=>a+p.stock*p.price,0);
+  const byCategory={Libre:products.filter(p=>p.cat==='Libre'),Controlado:products.filter(p=>p.cat==='Controlado'),Natural:products.filter(p=>p.cat==='Natural')};
+  return{tool:'get_inventory_summary',total,totalUnits,totalValue:Math.round(totalValue),outOfStock:outOfStock.length,lowStock:lowStock.length,healthy:healthy.length,byCategory:{Libre:byCategory.Libre.length,Controlado:byCategory.Controlado.length,Natural:byCategory.Natural.length},criticalProducts:[...outOfStock,...lowStock]};
+}
+function get_low_stock_products(products){
+  const lowStock=products.filter(p=>p.stock>0&&p.stock<=p.min).map(p=>({...p,gap:p.min-p.stock,riskLevel:p.stock<=p.min*0.5?'CRÍTICO':'BAJO'})).sort((a,b)=>a.stock-b.stock);
+  const outOfStock=products.filter(p=>p.stock===0);
+  return{tool:'get_low_stock_products',lowStock,outOfStock,total:lowStock.length+outOfStock.length};
+}
+function get_out_of_stock_products(products){
+  const out=products.filter(p=>p.stock===0);
+  return{tool:'get_out_of_stock_products',products:out,count:out.length};
+}
+function get_expiring_products(products,days=90){
+  const now=new Date();
+  const classified=products.map(p=>{
+    const exp=new Date(p.exp);const diffDays=Math.ceil((exp-now)/(1000*60*60*24));
+    let risk='NORMAL';
+    if(diffDays<=0)risk='VENCIDO';else if(diffDays<=30)risk='CRÍTICO';else if(diffDays<=60)risk='PRÓXIMO';else if(diffDays<=90)risk='PRECAUCIÓN';
+    return{...p,daysLeft:diffDays,risk};
+  }).filter(p=>p.daysLeft<=days).sort((a,b)=>a.daysLeft-b.daysLeft);
+  return{tool:'get_expiring_products',products:classified,vencidos:classified.filter(p=>p.risk==='VENCIDO'),criticos:classified.filter(p=>p.risk==='CRÍTICO'),proximos:classified.filter(p=>p.risk==='PRÓXIMO'),precaucion:classified.filter(p=>p.risk==='PRECAUCIÓN'),count:classified.length};
+}
+function get_sales_summary(sales){
+  if(!sales.length)return{tool:'get_sales_summary',count:0,total:0,average:0,byMethod:{},recentSales:[]};
+  const total=sales.reduce((a,s)=>a+s.total,0);
+  const byMethod={};sales.forEach(s=>{byMethod[s.method]=(byMethod[s.method]||0)+1;});
+  const byDate={};sales.forEach(s=>{byDate[s.date]=(byDate[s.date]||0)+s.total;});
+  const sortedDates=Object.entries(byDate).sort((a,b)=>a[0].localeCompare(b[0]));
+  const bestDay=sortedDates.reduce((best,cur)=>cur[1]>best[1]?cur:best,['',0]);
+  return{tool:'get_sales_summary',count:sales.length,total:Math.round(total*100)/100,average:Math.round((total/sales.length)*100)/100,byMethod,byDate,bestDay:{date:bestDay[0],total:Math.round(bestDay[1]*100)/100},recentSales:sales.slice(0,5)};
+}
+function get_top_products(products,limit=5){
+  const sorted=[...products].sort((a,b)=>b.sold-a.sold).slice(0,limit);
+  return{tool:'get_top_products',products:sorted,limit};
+}
+function get_low_movement_products(products,threshold=50){
+  const lowMovement=products.filter(p=>p.sold<threshold&&p.stock>0).sort((a,b)=>a.sold-b.sold);
+  return{tool:'get_low_movement_products',products:lowMovement,count:lowMovement.length,threshold};
+}
+function get_category_performance(products,sales){
+  const catSales={Libre:0,Controlado:0,Natural:0};const catCount={Libre:0,Controlado:0,Natural:0};
+  sales.forEach(s=>s.items.forEach(it=>{const p=products.find(pp=>pp.name===it.name);if(p){catSales[p.cat]=(catSales[p.cat]||0)+(it.price*it.qty);catCount[p.cat]=(catCount[p.cat]||0)+it.qty;}}));
+  const catStock={Libre:products.filter(p=>p.cat==='Libre').reduce((a,p)=>a+p.stock,0),Controlado:products.filter(p=>p.cat==='Controlado').reduce((a,p)=>a+p.stock,0),Natural:products.filter(p=>p.cat==='Natural').reduce((a,p)=>a+p.stock,0)};
+  const totalRevenue=Object.values(catSales).reduce((a,v)=>a+v,0);
+  const categories=['Libre','Controlado','Natural'].map(cat=>({name:cat,revenue:Math.round(catSales[cat]*100)/100,unitsSold:catCount[cat]||0,share:totalRevenue>0?Math.round((catSales[cat]/totalRevenue)*100):0,stock:catStock[cat],products:products.filter(p=>p.cat===cat).length})).sort((a,b)=>b.revenue-a.revenue);
+  return{tool:'get_category_performance',categories,totalRevenue:Math.round(totalRevenue)};
+}
+function get_payment_method_summary(sales){
+  if(!sales.length)return{tool:'get_payment_method_summary',methods:[],totalSales:0};
+  const byMethod={};const revenueByMethod={};
+  sales.forEach(s=>{byMethod[s.method]=(byMethod[s.method]||0)+1;revenueByMethod[s.method]=(revenueByMethod[s.method]||0)+s.total;});
+  const methods=Object.keys(byMethod).map(m=>({method:m,count:byMethod[m],revenue:Math.round(revenueByMethod[m]*100)/100,share:Math.round((byMethod[m]/sales.length)*100)})).sort((a,b)=>b.count-a.count);
+  return{tool:'get_payment_method_summary',methods,totalSales:sales.length};
+}
+function get_dashboard_metrics(products,sales,users){
+  const today=new Date().toISOString().split('T')[0];
+  const todaySales=sales.filter(s=>s.date===today||s.date==='2025-04-13');
+  const totalToday=todaySales.reduce((a,s)=>a+s.total,0);
+  const totalRevenue=sales.reduce((a,s)=>a+s.total,0);
+  const lowStock=products.filter(p=>p.stock>0&&p.stock<=p.min).length;
+  const outOfStock=products.filter(p=>p.stock===0).length;
+  return{tool:'get_dashboard_metrics',todayRevenue:Math.round(totalToday*100)/100,todayTransactions:todaySales.length,totalRevenue:Math.round(totalRevenue*100)/100,totalTransactions:sales.length,totalProducts:products.length,lowStock,outOfStock,activeUsers:users.filter(u=>u.active).length,avgTicket:sales.length?Math.round((totalRevenue/sales.length)*100)/100:0};
+}
+function detect_anomalies(products,sales){
+  const anomalies=[];
+  products.filter(p=>p.stock<=p.min&&p.sold>100).forEach(p=>anomalies.push({type:'HIGH_DEMAND_LOW_STOCK',severity:'ALTO',product:p.name,description:`${p.name} tiene alta demanda (${p.sold} unid. vendidas) pero stock crítico (${p.stock} disponibles vs ${p.min} mínimo). Riesgo de ruptura de stock inminente.`,evidence:`Ventas históricas: ${p.sold} | Stock: ${p.stock} | Mínimo: ${p.min}`}));
+  products.filter(p=>p.stock>50&&p.sold<30).forEach(p=>anomalies.push({type:'HIGH_STOCK_LOW_MOVEMENT',severity:'MEDIO',product:p.name,description:`${p.name} tiene stock elevado (${p.stock} unidades) pero baja rotación (${p.sold} unidades vendidas). Posible inmovilización de capital.`,evidence:`Stock: ${p.stock} | Ventas históricas: ${p.sold}`}));
+  products.filter(p=>p.stock===0&&p.sold>50).forEach(p=>anomalies.push({type:'STOCKOUT_HIGH_DEMAND',severity:'CRÍTICO',product:p.name,description:`${p.name} está agotado a pesar de tener ventas históricas de ${p.sold} unidades. Pérdida de ventas activa.`,evidence:`Stock: 0 | Ventas históricas: ${p.sold}`}));
+  const catSales={};sales.forEach(s=>s.items.forEach(it=>{const p=products.find(pp=>pp.name===it.name);if(p)catSales[p.cat]=(catSales[p.cat]||0)+it.price*it.qty;}));
+  const totalRev=Object.values(catSales).reduce((a,v)=>a+v,0);
+  Object.entries(catSales).forEach(([cat,rev])=>{const share=totalRev>0?(rev/totalRev)*100:0;if(share>70)anomalies.push({type:'REVENUE_CONCENTRATION',severity:'MEDIO',description:`La categoría "${cat}" concentra el ${Math.round(share)}% de los ingresos. Posible dependencia excesiva de una sola categoría.`,evidence:`Ingresos ${cat}: Bs ${Math.round(rev)} de Bs ${Math.round(totalRev)} totales`});});
+  return{tool:'detect_anomalies',anomalies,count:anomalies.length};
+}
+function get_sales_by_period(sales){
+  if(!sales.length)return{tool:'get_sales_by_period',byDate:{},bestDay:{date:'—',total:0},worstDay:{date:'—',total:0},days:0};
+  const byDate={};sales.forEach(s=>{byDate[s.date]=(byDate[s.date]||0)+s.total;});
+  const sorted=Object.entries(byDate).sort((a,b)=>a[0].localeCompare(b[0]));
+  const bestDay=sorted.reduce((best,cur)=>cur[1]>best[1]?cur:best,['',0]);
+  const worstDay=sorted.reduce((worst,cur)=>cur[1]<worst[1]?cur:worst,['',Infinity]);
+  return{tool:'get_sales_by_period',byDate:Object.fromEntries(sorted),bestDay:{date:bestDay[0],total:Math.round(bestDay[1]*100)/100},worstDay:{date:worstDay[0],total:Math.round(worstDay[1]*100)/100},days:sorted.length};
+}
+
+// ===== NLU — Intent Detection (Spanish keyword matching) =====
+function detectIntent(question,history=[]){
+  const q=question.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const lastCtx=history.length>0?history[history.length-1]:null;
+  const followUpWords=['cuales','cual','los que','de esos','de ellos','los anteriores','esos','ellos','cuantos'];
+  const isFollowUp=followUpWords.some(w=>q.includes(w))&&lastCtx;
+  if(q.includes('agotado')||(q.includes('sin stock')&&!q.includes('bajo')))return'out_of_stock';
+  if(q.includes('stock bajo')||q.includes('bajo stock')||q.includes('minimo')||q.includes('quedarse sin')||q.includes('riesgo de stock')||q.includes('riesgo stock'))return'low_stock';
+  if(q.includes('venc')||q.includes('expir')||q.includes('caducar')||q.includes('fecha'))return'expiration';
+  if(q.includes('anomal')||q.includes('extran')||q.includes('raro')||q.includes('inusual')||q.includes('detecta problema')||q.includes('detec'))return'anomaly';
+  if(q.includes('mas vendido')||q.includes('top')||q.includes('popular')||q.includes('lider')||q.includes('mejor producto'))return'top_products';
+  if(q.includes('bajo movimiento')||q.includes('poco movimiento')||q.includes('lento')||q.includes('sin movimiento')||q.includes('baja rotacion'))return'low_movement';
+  if(q.includes('categoria')||q.includes('libre')||q.includes('controlado')||q.includes('natural'))return'category';
+  if(q.includes('pago')||q.includes('efectivo')||q.includes('tarjeta')||q.includes('transferencia')||q.includes('metodo'))return'payment';
+  if(q.includes('mejor dia')||q.includes('periodo')||q.includes('semana')||q.includes('mes')||(q.includes('ventas')&&q.includes('comportar')))return'sales_period';
+  if(q.includes('venta')||q.includes('ingreso')||q.includes('revenue')||q.includes('factura'))return'sales';
+  if(q.includes('inventario')||q.includes('stock')||q.includes('productos'))return'inventory';
+  if(q.includes('recomendac')||q.includes('mejorar')||q.includes('optimizar')||q.includes('consejo')||q.includes('sugerencia')||q.includes('tres recomendac'))return'recommendations';
+  if(q.includes('analic')||q.includes('anali')||q.includes('diagnostico')||q.includes('resumen')||q.includes('situacion')||q.includes('como esta')||q.includes('estado')||q.includes('overview'))return'business_overview';
+  if(q.includes('usuario')||q.includes('equipo')||q.includes('personal'))return'users';
+  if(isFollowUp)return lastCtx.intent||'inventory';
+  return'general';
+}
+function tag(kind,content){
+  const icons={source:'📂',finding:'🔍',data:'📊',analysis:'💡',recommendation:'✅',warning:'⚠️',critical:'🔴',success:'🟢',info:'ℹ️'};
+  return`<div class="air-section air-${kind}"><span class="air-icon">${icons[kind]||'•'}</span><div class="air-body">${content}</div></div>`;
+}
+function productTable(items,columns){
+  if(!items||items.length===0)return'<p class="ai-empty">No se encontraron productos.</p>';
+  const headers=columns.map(c=>`<th>${c.label}</th>`).join('');
+  const rows=items.map(p=>`<tr>${columns.map(c=>`<td>${c.format?c.format(p):p[c.key]??'—'}</td>`).join('')}</tr>`).join('');
+  return`<div class="air-table-wrap"><table class="air-table"><thead><tr>${headers}</tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function generateLowStockResponse(data){
+  const{lowStock:ls,outOfStock:oos}=data;const total=ls.length+oos.length;
+  if(total===0)return{html:tag('success','<strong>Sin alertas de stock</strong><br>Todos los productos se encuentran por encima de su stock mínimo.'),intent:'low_stock'};
+  let html=tag('source',`Basado en el <strong>stock actual y stock mínimo</strong> de ${total} productos con alerta en PharmaCore.`);
+  html+=tag('finding',`Identifiqué <strong>${total} producto${total>1?'s':''} con riesgo de stock</strong>: ${oos.length} agotado${oos.length!==1?'s':''} y ${ls.length} bajo mínimo.`);
+  if(oos.length>0)html+=tag('critical',`<strong>AGOTADOS — Requieren reposición inmediata</strong><br>${productTable(oos,[{key:'name',label:'Producto'},{key:'cat',label:'Categoría'},{key:'sold',label:'Vendidos'},{key:'prov',label:'Proveedor'}])}`);
+  if(ls.length>0)html+=tag('warning',`<strong>STOCK BAJO — Por debajo del mínimo</strong><br>${productTable(ls,[{key:'name',label:'Producto'},{key:'stock',label:'Stock Actual'},{key:'min',label:'Mínimo'},{key:'gap',label:'Déficit'},{key:'riskLevel',label:'Riesgo'}])}`);
+  const highDemandAtRisk=[...oos,...ls].filter(p=>p.sold>100);
+  if(highDemandAtRisk.length>0)html+=tag('analysis',`<strong>Análisis de prioridad:</strong> ${highDemandAtRisk.map(p=>`<strong>${p.name}</strong> (${p.sold} unidades vendidas históricamente) presenta alto riesgo de impacto en ventas.`).join(' ')}`);
+  html+=tag('recommendation',`<strong>Acción recomendada:</strong> Contactar proveedores para ${oos.length>0?oos.map(p=>p.name).join(', '):'productos agotados'}. Priorizar por volumen de ventas histórico.`);
+  return{html,intent:'low_stock'};
+}
+function generateOutOfStockResponse(data){
+  const{products:out,count}=data;
+  if(count===0)return{html:tag('success','<strong>Sin productos agotados.</strong> Todos los productos tienen unidades disponibles.'),intent:'out_of_stock'};
+  let html=tag('source','Basado en el <strong>stock actual</strong> de todos los productos registrados en PharmaCore.');
+  html+=tag('critical',`<strong>${count} producto${count!==1?'s':''} completamente agotado${count!==1?'s':''}:</strong><br>${productTable(out,[{key:'name',label:'Producto'},{key:'cat',label:'Categoría'},{key:'sold',label:'Ventas Hist.'},{key:'prov',label:'Proveedor'},{key:'min',label:'Stock Mínimo'}])}`);
+  html+=tag('recommendation','Reposición urgente. Los productos agotados con mayor demanda histórica deben priorizarse para evitar pérdida de ventas.');
+  return{html,intent:'out_of_stock'};
+}
+function generateExpirationResponse(data){
+  const{products,vencidos,criticos,proximos,precaucion,count}=data;
+  if(count===0)return{html:tag('success','Según las fechas de vencimiento registradas, <strong>no se detectaron productos próximos a vencer</strong> en los próximos 90 días.'),intent:'expiration'};
+  let html=tag('source',`Basado en las <strong>fechas de vencimiento registradas</strong> en PharmaCore (ventana de análisis: 90 días).`);
+  html+=tag('finding',`Encontré <strong>${count} producto${count!==1?'s':''}</strong> dentro del rango de análisis: ${vencidos.length} vencidos, ${criticos.length} críticos (≤30 días), ${proximos.length} próximos (≤60 días), ${precaucion.length} en precaución (≤90 días).`);
+  if(vencidos.length>0)html+=tag('critical',`<strong>🔴 VENCIDOS</strong><br>${productTable(vencidos,[{key:'name',label:'Producto'},{key:'exp',label:'Fecha'},{key:'stock',label:'Stock'},{key:'cat',label:'Categoría'},{key:'prov',label:'Proveedor'}])}`);
+  if(criticos.length>0)html+=tag('critical',`<strong>🔴 CRÍTICO (≤30 días)</strong><br>${productTable(criticos,[{key:'name',label:'Producto'},{key:'daysLeft',label:'Días'},{key:'stock',label:'Stock'},{key:'cat',label:'Categoría'}])}`);
+  if(proximos.length>0)html+=tag('warning',`<strong>🟠 PRÓXIMO (≤60 días)</strong><br>${productTable(proximos,[{key:'name',label:'Producto'},{key:'daysLeft',label:'Días'},{key:'stock',label:'Stock'}])}`);
+  html+=tag('recommendation','La IA no decide si un lote puede dispensarse; solo alerta sobre la fecha registrada. El Farmacéutico debe validar cada caso antes de dispensar.');
+  return{html,intent:'expiration'};
+}
+function generateTopProductsResponse(data){
+  const{products}=data;
+  let html=tag('source','Basado en las <strong>ventas históricas acumuladas</strong> de todos los productos registrados en PharmaCore.');
+  html+=tag('finding',`Los <strong>${products.length} productos más vendidos</strong> concentran la mayor parte del volumen de unidades despachadas.`);
+  html+=tag('data',productTable(products,[{key:'id',label:'Código'},{key:'name',label:'Producto'},{key:'cat',label:'Categoría'},{key:'sold',label:'Unidades Vendidas'},{key:'stock',label:'Stock Actual'},{key:'price',label:'Precio Bs',format:p=>`Bs ${p.price}`}]));
+  const atRisk=products.filter(p=>p.stock<=p.min);
+  if(atRisk.length>0)html+=tag('warning',`<strong>Atención:</strong> ${atRisk.map(p=>p.name).join(', ')} figuran entre los más vendidos pero tienen stock bajo o agotado.`);
+  html+=tag('analysis',`<strong>${products[0].name}</strong> lidera con ${products[0].sold} unidades. Su disponibilidad de stock (${products[0].stock} unid.) debe monitorearse activamente.`);
+  return{html,intent:'top_products'};
+}
+function generateLowMovementResponse(data){
+  const{products,count}=data;
+  if(count===0)return{html:tag('success','No se detectaron productos con bajo movimiento significativo.'),intent:'low_movement'};
+  let html=tag('source','Basado en las <strong>ventas históricas acumuladas</strong> de productos con stock disponible en PharmaCore.');
+  html+=tag('finding',`Detecté <strong>${count} producto${count!==1?'s':''} con bajo movimiento</strong> (menos de 50 unidades vendidas históricamente).`);
+  html+=tag('data',productTable(products,[{key:'name',label:'Producto'},{key:'cat',label:'Categoría'},{key:'sold',label:'Unid. Vendidas'},{key:'stock',label:'Stock'},{key:'price',label:'Precio',format:p=>`Bs ${p.price}`},{key:'exp',label:'Vencimiento'}]));
+  html+=tag('analysis','Los productos con bajo movimiento y stock elevado representan capital inmovilizado. Revisar si son estacionales, si están correctamente ubicados en el punto de venta o si requieren ajuste de estrategia.');
+  html+=tag('recommendation','Evaluar acciones de rotación: reubicación, promociones o revisión de términos con proveedores para devolución de stock sin movimiento.');
+  return{html,intent:'low_movement'};
+}
+function generateSalesResponse(data){
+  const{count,total,average,byMethod,recentSales}=data;
+  if(count===0)return{html:tag('info','No hay suficientes datos en PharmaCore para realizar este análisis de ventas.'),intent:'sales'};
+  let html=tag('source',`Basado en las <strong>${count} ventas registradas</strong> en el historial de PharmaCore.`);
+  html+=tag('data',`<strong>Resumen de ventas:</strong><ul style="margin:8px 0 0 16px;line-height:1.8"><li>Total de transacciones: <strong>${count}</strong></li><li>Ingresos totales: <strong>Bs ${total.toLocaleString()}</strong></li><li>Ticket promedio: <strong>Bs ${average}</strong></li><li>Métodos de pago: ${Object.entries(byMethod).map(([m,c])=>`${m} (${c})`).join(', ')}</li></ul>`);
+  if(recentSales&&recentSales.length>0)html+=tag('data',`<strong>Últimas transacciones:</strong><br>${productTable(recentSales,[{key:'id',label:'ID'},{key:'date',label:'Fecha'},{key:'user',label:'Usuario'},{key:'total',label:'Total',format:s=>`Bs ${s.total.toFixed(2)}`},{key:'method',label:'Método'}])}`);
+  html+=tag('analysis',`Con un ticket promedio de Bs ${average} por venta, el flujo de caja muestra ${count>=5?'actividad regular':'actividad limitada en el registro'}.`);
+  return{html,intent:'sales'};
+}
+function generateSalesPeriodResponse(data){
+  const{byDate,bestDay,days}=data;
+  if(days===0)return{html:tag('info','No hay suficientes datos en PharmaCore para analizar el comportamiento por período.'),intent:'sales_period'};
+  let html=tag('source',`Basado en las <strong>ventas por fecha</strong> registradas en PharmaCore (${days} día${days!==1?'s':''} con actividad).`);
+  html+=tag('finding',`El <strong>mejor día</strong> fue <strong>${bestDay.date}</strong> con <strong>Bs ${bestDay.total}</strong> en ventas.`);
+  const tableData=Object.entries(byDate).map(([date,total])=>({date,total}));
+  html+=tag('data',productTable(tableData,[{key:'date',label:'Fecha'},{key:'total',label:'Ingresos',format:r=>`Bs ${r.total.toFixed(2)}`}]));
+  html+=tag('analysis',`Con ${days} días de datos disponibles, ${days<7?'el período de análisis es limitado para determinar tendencias definitivas':'se puede observar la evolución temporal de ventas'}.`);
+  return{html,intent:'sales_period'};
+}
+function generateCategoryResponse(data){
+  const{categories,totalRevenue}=data;
+  let html=tag('source','Basado en el <strong>cruce de ventas e inventario por categoría</strong> registrados en PharmaCore.');
+  html+=tag('data',productTable(categories,[{key:'name',label:'Categoría'},{key:'products',label:'Productos'},{key:'revenue',label:'Ingresos',format:c=>`Bs ${c.revenue.toLocaleString()}`},{key:'unitsSold',label:'Unidades'},{key:'share',label:'Participación',format:c=>`${c.share}%`},{key:'stock',label:'Stock Total'}]));
+  const top=categories[0];
+  html+=tag('analysis',`<strong>${top.name}</strong> es la categoría con mayor generación de ingresos (${top.share}% del total, Bs ${top.revenue.toLocaleString()}). Total de ingresos registrados: Bs ${totalRevenue.toLocaleString()}.`);
+  html+=tag('recommendation','Monitorear la concentración de ingresos por categoría para evitar dependencia excesiva. Evaluar estrategias de diversificación si una categoría supera el 70% de ingresos.');
+  return{html,intent:'category'};
+}
+function generatePaymentResponse(data){
+  const{methods}=data;
+  if(!methods.length)return{html:tag('info','No hay suficientes datos en PharmaCore para analizar métodos de pago.'),intent:'payment'};
+  let html=tag('source','Basado en el <strong>método de pago registrado</strong> en cada venta en PharmaCore.');
+  html+=tag('data',productTable(methods,[{key:'method',label:'Método'},{key:'count',label:'Transacciones'},{key:'share',label:'Participación',format:m=>`${m.share}%`},{key:'revenue',label:'Ingresos',format:m=>`Bs ${m.revenue.toFixed(2)}`}]));
+  html+=tag('analysis',`El método más utilizado es <strong>${methods[0].method}</strong> con ${methods[0].share}% de las transacciones.`);
+  return{html,intent:'payment'};
+}
+function generateInventoryResponse(data){
+  const{total,totalUnits,totalValue,outOfStock,lowStock,healthy,byCategory}=data;
+  let html=tag('source',`Basado en el <strong>inventario actual</strong> de ${total} productos registrados en PharmaCore.`);
+  html+=tag('data',`<strong>Estado general del inventario:</strong><ul style="margin:8px 0 0 16px;line-height:1.8"><li>Total de productos: <strong>${total}</strong></li><li>Unidades en stock: <strong>${totalUnits.toLocaleString()}</strong></li><li>Valor estimado: <strong>Bs ${totalValue.toLocaleString()}</strong></li><li>🟢 Con stock saludable: <strong>${healthy}</strong></li><li>🟡 Con stock bajo: <strong>${lowStock}</strong></li><li>🔴 Agotados: <strong>${outOfStock}</strong></li></ul>`);
+  html+=tag('data',`<strong>Por categoría:</strong> Libre Venta: ${byCategory.Libre} productos | Controlados: ${byCategory.Controlado} productos | Naturales: ${byCategory.Natural} productos`);
+  if(outOfStock+lowStock>0)html+=tag('warning',`<strong>${outOfStock+lowStock} producto${outOfStock+lowStock!==1?'s':''}</strong> requieren atención de stock.`);
+  return{html,intent:'inventory'};
+}
+function generateAnomalyResponse(data){
+  const{anomalies,count}=data;
+  if(count===0)return{html:tag('success','No se detectaron anomalías operativas significativas con los datos disponibles actualmente en PharmaCore.'),intent:'anomaly'};
+  let html=tag('source','Basado en el <strong>análisis cruzado de inventario y ventas</strong> registrados en PharmaCore.');
+  html+=tag('finding',`Detecté <strong>${count} posible${count!==1?'s':''} anomalía${count!==1?'s':''} operativa${count!==1?'s':''}</strong>. Se indica "posible anomalía" cuando no hay suficientes datos para confirmación estadística completa.`);
+  anomalies.forEach(a=>{const sev=a.severity==='CRÍTICO'?'critical':a.severity==='ALTO'?'warning':'info';html+=tag(sev,`<strong>${a.severity} — ${a.type.replace(/_/g,' ')}</strong>${a.product?` — ${a.product}`:''}<br>${a.description}<br><span style="font-size:11px;opacity:0.7;margin-top:4px;display:block">Evidencia: ${a.evidence}</span>`);});
+  html+=tag('analysis','Estas situaciones son indicadores operativos basados en los datos registrados. No implican certeza estadística con el volumen de datos actual.');
+  html+=tag('recommendation','Revisar cada punto con el equipo correspondiente. Las anomalías de stock crítico requieren acción inmediata.');
+  return{html,intent:'anomaly'};
+}
+function generateRecommendationsResponse(data){
+  const{lowStockData,expirationData,categoryData,topProducts}=data;
+  const recs=[];const ls=lowStockData?.lowStock||[];const oos=lowStockData?.outOfStock||[];
+  if(oos.length>0)recs.push({p:1,icon:'🔴',title:'Reposición urgente de productos agotados',what:`${oos.length} producto${oos.length!==1?'s':''} están completamente agotados`,why:'La venta de estos productos no es posible, generando pérdida directa de ingresos',evidence:oos.map(p=>`${p.name} (${p.sold} unid. hist.)`).join(', '),action:`Contactar a ${[...new Set(oos.map(p=>p.prov))].join(', ')} para reposición inmediata`});
+  if(ls.length>0)recs.push({p:2,icon:'🟠',title:'Gestión preventiva de stock bajo',what:`${ls.length} producto${ls.length!==1?'s':''} están por debajo de su stock mínimo`,why:'Sin acción, se convertirán en agotados en corto plazo, especialmente los de alta demanda',evidence:ls.slice(0,3).map(p=>`${p.name}: ${p.stock}/${p.min}`).join(', '),action:'Iniciar proceso de compra con anticipación suficiente según tiempo de entrega del proveedor'});
+  if(expirationData?.criticos?.length>0)recs.push({p:3,icon:'🟡',title:'Gestión de vencimientos próximos',what:`${expirationData.criticos.length} producto${expirationData.criticos.length!==1?'s':''} vencen en menos de 30 días`,why:'Los productos vencidos no pueden venderse y representan pérdida de inventario',evidence:expirationData.criticos.map(p=>`${p.name} (${p.daysLeft} días)`).join(', '),action:'Coordinar con proveedores para devolución o cambio. Farmacéutico debe validar cada caso'});
+  if(categoryData?.categories){const top=categoryData.categories[0];if(top&&top.share>60)recs.push({p:4,icon:'📊',title:'Diversificación de ingresos por categoría',what:`"${top.name}" concentra el ${top.share}% de los ingresos`,why:'Alta concentración genera dependencia y riesgo ante variaciones de demanda',evidence:`Bs ${top.revenue.toLocaleString()} de ${categoryData.totalRevenue.toLocaleString()} totales`,action:'Evaluar estrategias para potenciar categorías con menor participación'});}
+  recs.push({p:5,icon:'💡',title:'Monitoreo continuo de productos de alta rotación',what:'Los productos más vendidos requieren seguimiento frecuente',why:'Un producto top que se agota impacta directamente en satisfacción y ventas',evidence:topProducts?.products?.slice(0,3).map(p=>`${p.name}: ${p.sold} unid.`).join(', ')||'Ver análisis de top productos',action:'Establecer alertas de stock para los 5 productos más vendidos'});
+  let html=tag('source','Basado en el <strong>análisis integral</strong> de inventario, ventas y vencimientos de PharmaCore.');
+  html+=tag('finding',`Generé <strong>${recs.length} recomendaciones operativas</strong> ordenadas por prioridad.`);
+  recs.forEach(r=>{html+=tag('recommendation',`${r.icon} <strong>#${r.p} — ${r.title}</strong><br><span style="font-size:11.5px;opacity:.85">QUÉ: ${r.what}<br>POR QUÉ: ${r.why}<br>EVIDENCIA: ${r.evidence}<br><strong>ACCIÓN: ${r.action}</strong></span>`);});
+  return{html,intent:'recommendations'};
+}
+function generateBusinessOverviewResponse(data){
+  const m=data.metrics,ls=data.lowStockData,exp=data.expirationData,cat=data.categoryData,lowMov=data.lowMovementData;
+  let html=tag('source','<strong>RESUMEN EJECUTIVO</strong> — Análisis integral de PharmaCore basado en inventario, ventas y vencimientos registrados.');
+  html+=tag('data',`<strong>SITUACIÓN ACTUAL:</strong><ul style="margin:8px 0 0 16px;line-height:1.9"><li>Inventario: <strong>${m.totalProducts} productos</strong> — ${m.totalProducts-m.lowStock-m.outOfStock} saludables, ${m.lowStock} bajo mínimo, ${m.outOfStock} agotados</li><li>Ingresos del día: <strong>Bs ${m.todayRevenue.toLocaleString()}</strong> en ${m.todayTransactions} transacciones</li><li>Ingresos totales registrados: <strong>Bs ${m.totalRevenue.toLocaleString()}</strong> (${m.totalTransactions} ventas)</li><li>Categoría líder: <strong>${cat?.categories?.[0]?.name||'—'}</strong> (${cat?.categories?.[0]?.share||'—'}% de ingresos)</li><li>Vencimientos críticos: <strong>${exp?.criticos?.length||0} productos</strong> en ≤30 días</li></ul>`);
+  const risks=[];
+  if(m.outOfStock>0)risks.push(`${m.outOfStock} producto${m.outOfStock!==1?'s':''} agotado${m.outOfStock!==1?'s':''} (pérdida de ventas activa)`);
+  if(m.lowStock>0)risks.push(`${m.lowStock} producto${m.lowStock!==1?'s':''} bajo stock mínimo`);
+  if(exp?.criticos?.length>0)risks.push(`${exp.criticos.length} producto${exp.criticos.length!==1?'s':''} con vencimiento crítico`);
+  if(risks.length>0)html+=tag('warning',`<strong>RIESGOS:</strong><ul style="margin:8px 0 0 16px;line-height:1.9">${risks.map(r=>`<li>${r}</li>`).join('')}</ul>`);
+  const ops=[];const lowMovement=lowMov?.products||[];
+  if(lowMovement.length>0)ops.push(`${lowMovement.length} productos con baja rotación — oportunidad de optimización de cartera`);
+  if(cat?.categories){const bottomCat=[...cat.categories].sort((a,b)=>a.share-b.share)[0];if(bottomCat&&bottomCat.share<20)ops.push(`Categoría "${bottomCat.name}" con ${bottomCat.share}% de participación — potencial de crecimiento`);}
+  if(ops.length>0)html+=tag('info',`<strong>OPORTUNIDADES:</strong><ul style="margin:8px 0 0 16px;line-height:1.9">${ops.map(o=>`<li>${o}</li>`).join('')}</ul>`);
+  html+=tag('recommendation','<strong>ACCIONES PRIORITARIAS:</strong> 1) Gestionar reposición de agotados y bajo mínimo. 2) Validar y gestionar próximos a vencer. 3) Revisar rotación de productos con bajo movimiento.');
+  return{html,intent:'business_overview'};
+}
+function generateUsersResponse(toolResults){
+  const{users}=toolResults;
+  let html=tag('source','Basado en el <strong>directorio de usuarios</strong> registrados en PharmaCore.');
+  html+=tag('data',productTable(users,[{key:'name',label:'Usuario'},{key:'role',label:'Rol'},{key:'active',label:'Estado',format:u=>u.active?'🟢 Activo':'⚫ Inactivo'},{key:'sales',label:'Ventas Proc.'},{key:'perms',label:'Permisos'}]));
+  const active=users.filter(u=>u.active).length;
+  html+=tag('analysis',`${active} de ${users.length} usuarios están activos. El equipo procesa un total de ${users.reduce((a,u)=>a+u.sales,0)} ventas registradas en el sistema.`);
+  return{html,intent:'users'};
+}
+function generateGeneralResponse(){
+  const html=tag('info',`No he podido identificar una consulta específica. Puedo ayudarte con:<ul style="margin:8px 0 0 16px;line-height:1.9"><li>📦 <strong>Inventario y stock</strong> — ¿Qué productos tienen stock bajo?</li><li>📅 <strong>Vencimientos</strong> — ¿Qué productos están próximos a vencer?</li><li>📈 <strong>Ventas</strong> — ¿Cómo están las ventas?</li><li>💊 <strong>Productos</strong> — ¿Cuáles son los más vendidos?</li><li>⚠️ <strong>Anomalías</strong> — Detecta problemas en mi inventario</li><li>💰 <strong>Categorías</strong> — ¿Qué categoría genera más ingresos?</li><li>💡 <strong>Recomendaciones</strong> — Dame recomendaciones para mejorar</li></ul>`);
+  return{html,intent:'general'};
+}
+function generateResponse(intent,toolResults,history){
+  switch(intent){
+    case'low_stock':return generateLowStockResponse(toolResults);
+    case'out_of_stock':return generateOutOfStockResponse(toolResults);
+    case'expiration':return generateExpirationResponse(toolResults);
+    case'top_products':return generateTopProductsResponse(toolResults);
+    case'low_movement':return generateLowMovementResponse(toolResults);
+    case'sales':return generateSalesResponse(toolResults);
+    case'sales_period':return generateSalesPeriodResponse(toolResults);
+    case'category':return generateCategoryResponse(toolResults);
+    case'payment':return generatePaymentResponse(toolResults);
+    case'inventory':return generateInventoryResponse(toolResults);
+    case'anomaly':return generateAnomalyResponse(toolResults);
+    case'recommendations':return generateRecommendationsResponse(toolResults);
+    case'business_overview':return generateBusinessOverviewResponse(toolResults);
+    case'users':return generateUsersResponse(toolResults);
+    default:return generateGeneralResponse();
+  }
+}
+
+// ===== AI AGENT ENTRY POINT (equivalente a POST /api/ai/chat, ejecutado en cliente) =====
+function runAIAgent(question,history,userRole){
+  const intent=detectIntent(question,history);
+  // Control de permisos ANTES de ejecutar cualquier tool (prompt sec. 14)
+  const restrictedIntents={users:'all',business_overview:'all',anomaly:'inventory',recommendations:'inventory',category:'analysis',payment:'analysis',sales:'sales_history',sales_period:'analysis',low_movement:'inventory',top_products:'sales_history'};
+  const requiredPerm=restrictedIntents[intent];
+  if(requiredPerm&&!hasPermission(userRole,requiredPerm)){
+    return{html:tag('warning',`No tienes permisos para acceder a este análisis con el rol <strong>${userRole}</strong>.`),intent,permissionDenied:true};
+  }
+  let toolResults={};
+  switch(intent){
+    case'low_stock':toolResults=get_low_stock_products(products);break;
+    case'out_of_stock':toolResults=get_out_of_stock_products(products);break;
+    case'expiration':toolResults=get_expiring_products(products);break;
+    case'top_products':toolResults=get_top_products(products,8);break;
+    case'low_movement':toolResults=get_low_movement_products(products);break;
+    case'sales':toolResults=get_sales_summary(allSales);break;
+    case'sales_period':toolResults=get_sales_by_period(allSales);break;
+    case'category':toolResults=get_category_performance(products,allSales);break;
+    case'payment':toolResults=get_payment_method_summary(allSales);break;
+    case'inventory':toolResults=get_inventory_summary(products);break;
+    case'anomaly':toolResults=detect_anomalies(products,allSales);break;
+    case'users':toolResults={users};break;
+    case'recommendations':toolResults={lowStockData:get_low_stock_products(products),expirationData:get_expiring_products(products,60),categoryData:get_category_performance(products,allSales),topProducts:get_top_products(products,5)};break;
+    case'business_overview':toolResults={metrics:get_dashboard_metrics(products,allSales,users),lowStockData:get_low_stock_products(products),expirationData:get_expiring_products(products,90),categoryData:get_category_performance(products,allSales),lowMovementData:get_low_movement_products(products)};break;
+    default:toolResults=get_dashboard_metrics(products,allSales,users);
+  }
+  return generateResponse(intent,toolResults,history);
+}
+
+// ===== AI INSIGHTS GENERATOR (8 tarjetas — prompt sec. 7) =====
+function generateAIInsights(){
+  const now=new Date();const insights=[];
+  const lowStock=products.filter(p=>p.stock>0&&p.stock<=p.min);
+  const outOfStock=products.filter(p=>p.stock===0);
+  const stockRiskLevel=outOfStock.length>0?'ALTO':lowStock.length>3?'ALTO':lowStock.length>0?'MEDIO':'OK';
+  insights.push({id:'stock_risk',icon:outOfStock.length>0?'🔴':lowStock.length>0?'🟠':'🟢',title:'Stock Risk',priority:stockRiskLevel,summary:outOfStock.length>0?`${outOfStock.length} agotado${outOfStock.length!==1?'s':''}`:lowStock.length>0?`${lowStock.length} bajo mínimo`:'Inventario saludable',detail:`${outOfStock.length} agotados · ${lowStock.length} bajo mínimo de ${products.length} productos`,recommendation:outOfStock.length>0?`Reposición urgente: ${outOfStock.slice(0,2).map(p=>p.name).join(', ')}`:lowStock.length>0?`Revisar reposición: ${lowStock.slice(0,2).map(p=>p.name).join(', ')}`:'Sin acciones de stock requeridas'});
+  const expiring=products.map(p=>({...p,daysLeft:Math.ceil((new Date(p.exp)-now)/(1000*60*60*24))}));
+  const expired=expiring.filter(p=>p.daysLeft<=0);const critical30=expiring.filter(p=>p.daysLeft>0&&p.daysLeft<=30);
+  insights.push({id:'expiration_risk',icon:expired.length>0?'🔴':critical30.length>0?'🟠':'🟢',title:'Expiration Risk',priority:expired.length>0?'ALTO':critical30.length>0?'MEDIO':'OK',summary:expired.length>0?`${expired.length} vencido${expired.length!==1?'s':''}`:critical30.length>0?`${critical30.length} vencen en ≤30 días`:'Vencimientos en orden',detail:`${expired.length} vencidos · ${critical30.length} críticos (≤30 días)`,recommendation:expired.length>0?`Gestionar inmediatamente: ${expired.slice(0,2).map(p=>p.name).join(', ')}`:critical30.length>0?'Coordinar devolución o sustitución':'Sin alertas de vencimiento inmediatas'});
+  const totalRev=allSales.reduce((a,s)=>a+s.total,0);const avgTicket=allSales.length?Math.round(totalRev/allSales.length):0;
+  insights.push({id:'sales_trend',icon:'📈',title:'Sales Trend',priority:allSales.length>5?'OK':'INFO',summary:`Bs ${totalRev.toLocaleString()} registrados`,detail:`${allSales.length} transacciones · Ticket promedio Bs ${avgTicket}`,recommendation:`Monitorear evolución diaria. Ticket promedio actual: Bs ${avgTicket}`});
+  const lowMov=products.filter(p=>p.sold<50&&p.stock>0);
+  insights.push({id:'low_movement',icon:lowMov.length>3?'🐌':'🟢',title:'Low Movement',priority:lowMov.length>3?'MEDIO':'OK',summary:`${lowMov.length} con baja rotación`,detail:`${lowMov.length} productos vendidos menos de 50 unidades con stock disponible`,recommendation:lowMov.length>0?`Evaluar estrategia para: ${lowMov.slice(0,2).map(p=>p.name).join(', ')}`:'Rotación de inventario saludable'});
+  const top3=[...products].sort((a,b)=>b.sold-a.sold).slice(0,3);
+  insights.push({id:'top_products',icon:'💊',title:'Top Products',priority:'INFO',summary:top3[0]?.name||'—',detail:top3.map(p=>`${p.name}: ${p.sold} unid.`).join(' · '),recommendation:'Asegurar disponibilidad continua de los 3 líderes de venta'});
+  const catSales={Libre:0,Controlado:0,Natural:0};
+  allSales.forEach(s=>s.items.forEach(it=>{const p=products.find(pp=>pp.name===it.name);if(p)catSales[p.cat]=(catSales[p.cat]||0)+it.price*it.qty;}));
+  const totalCatRev=Object.values(catSales).reduce((a,v)=>a+v,0);
+  const topCat=Object.entries(catSales).sort((a,b)=>b[1]-a[1])[0];const bottomCat=Object.entries(catSales).sort((a,b)=>a[1]-b[1])[0];
+  insights.push({id:'revenue_opportunities',icon:'💰',title:'Revenue Opportunities',priority:'INFO',summary:`${topCat?topCat[0]:'—'} lidera ingresos`,detail:totalCatRev>0?`${topCat?.[0]}: ${Math.round((topCat?.[1]/totalCatRev)*100)}% · ${bottomCat?.[0]}: ${Math.round((bottomCat?.[1]/totalCatRev)*100)}%`:'Sin datos suficientes',recommendation:bottomCat&&totalCatRev>0?`Potenciar categoría "${bottomCat[0]}" (${Math.round((bottomCat[1]/totalCatRev)*100)}% de participación)`:'Analizar distribución de ingresos por categoría'});
+  const anomalies=[];
+  products.forEach(p=>{if(p.stock===0&&p.sold>100)anomalies.push(`${p.name} agotado + alta demanda`);if(p.stock>50&&p.sold<20)anomalies.push(`${p.name} stock alto + baja rotación`);});
+  insights.push({id:'inventory_anomalies',icon:anomalies.length>0?'⚠️':'✅',title:'Inventory Anomalies',priority:anomalies.length>0?'MEDIO':'OK',summary:anomalies.length>0?`${anomalies.length} posible${anomalies.length!==1?'s':''} anomalía${anomalies.length!==1?'s':''}`:'Sin anomalías detectadas',detail:anomalies.slice(0,2).join(' · ')||'Inventario operando con normalidad',recommendation:anomalies.length>0?'Revisar patrones detectados con el equipo':'Monitoreo continuo recomendado'});
+  const recCount=(outOfStock.length>0?1:0)+(critical30.length>0?1:0)+(lowMov.length>2?1:0)+(anomalies.length>0?1:0);
+  insights.push({id:'ai_recommendations',icon:'🤖',title:'AI Recommendations',priority:recCount>2?'ALTO':recCount>0?'MEDIO':'OK',summary:`${recCount} recomendación${recCount!==1?'es':''} operativa${recCount!==1?'s':''}`,detail:'Basado en análisis integral de inventario, ventas y vencimientos',recommendation:'Pregunta al AI Assistant: "Dame recomendaciones para mejorar"'});
+  return insights;
+}
+
+// ===== RENDER: PharmaCore AI page =====
+let aiHistory=[];
+const AI_SUGGESTED_PROMPTS=[
+  {icon:'📦',text:'¿Qué productos tienen riesgo de quedarse sin stock?'},
+  {icon:'📅',text:'¿Qué productos están próximos a vencer?'},
+  {icon:'📈',text:'Analiza las ventas de este mes.'},
+  {icon:'💊',text:'¿Cuáles son los productos más vendidos?'},
+  {icon:'🐌',text:'¿Qué productos tienen bajo movimiento?'},
+  {icon:'⚠️',text:'Detecta problemas en mi inventario.'},
+  {icon:'💰',text:'¿Qué categorías generan más ingresos?'},
+  {icon:'💡',text:'Dame tres recomendaciones para mejorar la gestión.'},
+];
+function insightCardHTML(ins){
+  return`<div class="ai-insight-card">
+    <div class="aic-top"><span class="aic-icon">${ins.icon}</span><span class="aic-priority ${ins.priority}">${ins.priority}</span></div>
+    <div class="aic-title">${ins.title}</div>
+    <div class="aic-summary">${ins.summary}</div>
+    <div class="aic-detail">${ins.detail}</div>
+    <div class="aic-rec">→ ${ins.recommendation}</div>
+  </div>`;
+}
+function renderAI(){
+  const c=document.getElementById('content');
+  const insights=generateAIInsights();
+  c.innerHTML=`
+  <div class="ai-hero">
+    <h1>🤖 PharmaCore AI</h1>
+    <p>Pregunta a tus datos. Detecta problemas. Toma mejores decisiones. — AI Business Copilot conectado a los datos operativos de PharmaCore (read-only: no modifica inventario, precios ni ventas).</p>
+  </div>
+  <div class="ai-insights-grid">${insights.map(insightCardHTML).join('')}</div>
+  <div class="ai-chat-layout">
+    <div class="ai-prompts">
+      ${AI_SUGGESTED_PROMPTS.map(p=>`<button class="ai-prompt-btn" onclick="askAI('${p.text.replace(/'/g,"\\'")}')">${p.icon} ${p.text}</button>`).join('')}
+    </div>
+    <div class="ai-chat-panel">
+      <div class="ai-messages" id="aiMessages">
+        <div class="ai-empty-state" id="aiEmptyState">Escribe una pregunta o elige una sugerencia de la izquierda.<br><br><span style="font-size:11px;">Herramientas disponibles: get_inventory_summary · get_low_stock_products · get_expiring_products · get_sales_summary · get_category_performance · detect_anomalies · get_dashboard_metrics, entre otras.</span></div>
+      </div>
+      <div class="ai-chat-input-row">
+        <input id="aiInput" placeholder="¿Qué quieres analizar?" onkeydown="if(event.key==='Enter')sendAIMessage();">
+        <button onclick="sendAIMessage()">Enviar</button>
+      </div>
+    </div>
+  </div>`;
+  renderAIHistory();
+}
+function renderAIHistory(){
+  const el=document.getElementById('aiMessages');if(!el)return;
+  if(aiHistory.length===0){return;}
+  const empty=document.getElementById('aiEmptyState');if(empty)empty.remove();
+  el.innerHTML=aiHistory.map(m=>m.role==='user'?`<div class="ai-msg-user">${m.text}</div>`:`<div class="ai-msg-bot">${m.html}</div>`).join('');
+  el.scrollTop=el.scrollHeight;
+}
+function askAI(text){
+  document.getElementById('aiInput').value=text;
+  sendAIMessage();
+}
+function sendAIMessage(){
+  const input=document.getElementById('aiInput');
+  const question=input.value.trim();
+  if(!question)return;
+  input.value='';
+  aiHistory.push({role:'user',text:question});
+  const toolHistory=aiHistory.filter(m=>m.role==='assistant').map(m=>({intent:m.intent}));
+  const response=runAIAgent(question,toolHistory,currentUser.role);
+  aiHistory.push({role:'assistant',html:response.html,intent:response.intent});
+  renderAIHistory();
+}
+
+// ===== CASE STUDY (adaptado de la propuesta de arquitectura; sin llamadas a backend) =====
+const TOOL_REGISTRY_DOCS=[
+  {name:'get_inventory_summary',desc:'Estado general del inventario por categoría y salud de stock',perm:'inventory_read',source:'products[]'},
+  {name:'get_low_stock_products',desc:'Productos agotados o bajo el mínimo definido',perm:'inventory_read',source:'products[]'},
+  {name:'get_out_of_stock_products',desc:'Productos con stock = 0',perm:'inventory_read',source:'products[]'},
+  {name:'get_expiring_products',desc:'Productos clasificados por riesgo de vencimiento (30/60/90 días)',perm:'inventory_read',source:'products[]'},
+  {name:'get_sales_summary',desc:'Totales, promedio de ticket y últimas transacciones',perm:'sales_history',source:'allSales[]'},
+  {name:'get_sales_by_period',desc:'Ingresos por fecha, mejor y peor día',perm:'analysis',source:'allSales[]'},
+  {name:'get_top_products',desc:'Ranking de productos por unidades vendidas',perm:'sales_history',source:'products[]'},
+  {name:'get_low_movement_products',desc:'Productos con baja rotación y stock disponible',perm:'inventory',source:'products[]'},
+  {name:'get_category_performance',desc:'Ingresos, unidades y participación por categoría',perm:'analysis',source:'products[] + allSales[]'},
+  {name:'get_payment_method_summary',desc:'Distribución de ventas por método de pago',perm:'analysis',source:'allSales[]'},
+  {name:'get_dashboard_metrics',desc:'KPIs consolidados (ingresos, transacciones, stock, usuarios activos)',perm:'dashboard',source:'products[] + allSales[] + users[]'},
+  {name:'detect_anomalies',desc:'Patrones de alta demanda + stock bajo, stock alto + baja rotación, concentración de ingresos',perm:'inventory',source:'products[] + allSales[]'},
+];
+function renderCaseStudy(){
+  const c=document.getElementById('content');
+  c.innerHTML=`
+  <div class="cs-hero">
+    <h1>PHARMACORE AI</h1>
+    <p>From pharmacy management to AI-powered decision intelligence.</p>
+  </div>
+  <div class="cs-grid">
+    <div class="cs-section">
+      <h3><i>01</i> The Problem</h3>
+      <p>PharmaCore registraba correctamente productos, ventas, stock y vencimientos, pero el equipo debía interpretar manualmente tablas y gráficos para detectar una ruptura de stock o un lote próximo a vencer. La información existía; la decisión operativa dependía del tiempo y la experiencia de cada usuario.</p>
+    </div>
+    <div class="cs-section">
+      <h3><i>02</i> The Solution</h3>
+      <p>Una capa de inteligencia sobre el sistema existente: un copiloto de negocio que ejecuta herramientas controladas sobre los mismos datos y devuelve <strong>datos, interpretación y recomendación operativa</strong>. No sustituye ningún módulo: los interpreta.</p>
+    </div>
+  </div>
+  <div class="cs-section">
+    <h3><i>03</i> AI Assistant</h3>
+    <p>Conversación con contexto sobre los datos operativos de la farmacia. Cada respuesta declara su origen ("según las fechas de vencimiento registradas…") y las herramientas ejecutadas. Si no hay datos suficientes, lo indica en lugar de inferirlos.</p>
+    <div>${AI_SUGGESTED_PROMPTS.map(s=>`<span class="cs-tag">${s.icon} ${s.text}</span>`).join('')}</div>
+  </div>
+  <div class="cs-grid">
+    <div class="cs-section">
+      <h3><i>04</i> AI Insights</h3>
+      <p>Ocho tarjetas de análisis permanente: Stock Risk, Expiration Risk, Sales Trend, Low Movement, Top Products, Revenue Opportunities, Inventory Anomalies y AI Recommendations. Cada tarjeta muestra título, evidencia, prioridad y acción recomendada.</p>
+    </div>
+    <div class="cs-section">
+      <h3><i>05</i> AI Inventory Analysis</h3>
+      <p>Detecta riesgo de agotamiento, stock excesivo, baja rotación, próximos vencimientos, productos agotados y alta demanda, cruzando stock actual, stock mínimo, ventas históricas, proveedor y categoría.</p>
+    </div>
+    <div class="cs-section">
+      <h3><i>06</i> AI Sales Analysis</h3>
+      <p>Ventas por día y periodo, mejor y peor jornada, productos líderes y rezagados, rendimiento por categoría, métodos de pago y usuarios que procesaron cada operación.</p>
+    </div>
+    <div class="cs-section">
+      <h3><i>07</i> AI Agent</h3>
+      <p>El agente no genera SQL ni consulta la base de datos directamente. Interpreta la intención, verifica el permiso del rol activo y ejecuta solo las herramientas necesarias antes de componer la respuesta.</p>
+      <div class="cs-flow">USER → PHARMACORE AI → AI AGENT → TOOL LAYER → BUSINESS LOGIC → DATOS DE PHARMACORE</div>
+    </div>
+  </div>
+  <div class="cs-section">
+    <h3><i>08</i> Tool Architecture</h3>
+    <p>Cada herramienta declara permiso, parámetros, origen de datos y respuesta estructurada. El registro es la única puerta de entrada a la lógica de negocio, lo que permite exponerlo más adelante como herramientas MCP sin reescribir la capa (ver <code>docs/PHARMACORE-AI-TOOL-ARCHITECTURE.md</code>).</p>
+    <div class="air-table-wrap"><table class="air-table"><thead><tr><th>Tool</th><th>Propósito</th><th>Permiso</th><th>Origen de datos</th></tr></thead><tbody>
+      ${TOOL_REGISTRY_DOCS.map(t=>`<tr><td style="font-family:var(--mono)">${t.name}</td><td>${t.desc}</td><td>${t.perm}</td><td>${t.source}</td></tr>`).join('')}
+    </tbody></table></div>
+  </div>
+  <div class="cs-grid">
+    <div class="cs-section">
+      <h3><i>09</i> Security</h3>
+      <ul>
+        <li>Permisos verificados <strong>antes</strong> de ejecutar cada herramienta o mostrar cada módulo.</li>
+        <li>Versión 1 estrictamente de solo lectura: sin escrituras ni acciones irreversibles.</li>
+        <li>Sin SQL generado por el modelo; solo funciones con parámetros fijos.</li>
+        <li>Sin diagnósticos ni recomendaciones clínicas: solo operación y negocio.</li>
+      </ul>
+    </div>
+    <div class="cs-section">
+      <h3><i>10</i> Future MCP Architecture</h3>
+      <p>PharmaCore AI <strong>aún no es</strong> un servidor MCP. El registro de herramientas está diseñado de forma modular para exponerse como tal en una fase posterior, o para ejecutarse vía <code>server.js</code> (Express) si el hosting migra de Netlify a un entorno con Node:</p>
+      <div class="cs-flow">PHARMACORE → AI AGENT → TOOLS → MCP → External AI Systems / Enterprise Agents</div>
+    </div>
+  </div>
+  <div class="cs-section">
+    <h3><i>11</i> Technology Stack</h3>
+    <div>
+      <span class="cs-tag">JavaScript (cliente, compatible con Netlify estático)</span><span class="cs-tag">Node.js / Express (server.js, referencia futura)</span><span class="cs-tag">Tool-based AI agent</span>
+      <span class="cs-tag">HTML/CSS/JS</span><span class="cs-tag">Chart.js</span>
+      <span class="cs-tag">Control de permisos por rol</span><span class="cs-tag">Modo Demo determinista</span>
+    </div>
+  </div>`;
+}
+
 // ===== MODAL UTILS =====
 function showModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 
 function editProduct(i){
+  if(!hasPermission(currentUser.role,'inventory')){alert('Tu perfil ('+currentUser.role+') no tiene permiso para editar el inventario.');return;}
   editIdx=i;const p=products[i];
   document.getElementById('modalTitle').textContent='Editar Producto';
   document.getElementById('f_name').value=p.name;
@@ -877,6 +1519,7 @@ function saveProduct(){
   renderInventario();
 }
 function deleteProduct(i){
+  if(!hasPermission(currentUser.role,'inventory')){alert('Tu perfil ('+currentUser.role+') no tiene permiso para eliminar productos.');return;}
   if(confirm(`¿Eliminar "${products[i].name}"?`)){products.splice(i,1);updateLowBadge();renderInventario();}
 }
 function updateLowBadge(){
@@ -896,10 +1539,13 @@ function doLogin(){
   document.getElementById('sideUserAvatar').textContent=currentUser.avatar;
   document.getElementById('sideUserAvatar').style.background=currentUser.color;
   closeModal('loginModal');
+  applyRolePermissions();
+  renderPage(currentPage); // refresca botones de acción (Editar/Eliminar, + Nuevo Producto) según el nuevo rol
 }
 
 // ===== INIT =====
 updateLowBadge();
+applyRolePermissions();
 renderPage('dashboard');
 document.getElementById('topAddBtn').style.display='flex';
 </script>
