@@ -12,10 +12,12 @@ app.use(express.static('.'));
 // ============================================================
 const ROLE_PERMISSIONS = {
   'Administrador': ['all'],
-  'Farmacéutico Senior': ['inventory', 'sales', 'analysis', 'expiration', 'products'],
+  'Farmacéutico Senior': ['inventory', 'sales', 'analysis', 'expiration', 'products', 'dashboard'],
   'Cajero': ['sales', 'products_read'],
-  'Auxiliar': ['dashboard', 'inventory_read'],
+  'Auxiliar': ['dashboard', 'inventory_read', 'products_read'],
 };
+
+const DEFAULT_ROLE = 'Auxiliar';
 
 function hasPermission(role, resource) {
   const perms = ROLE_PERMISSIONS[role] || [];
@@ -23,6 +25,56 @@ function hasPermission(role, resource) {
   if (perms.includes(resource)) return true;
   if (resource.endsWith('_read') && perms.includes(resource.replace('_read', ''))) return true;
   return false;
+}
+
+function resolveRole(role) {
+  return ROLE_PERMISSIONS[role] ? role : DEFAULT_ROLE;
+}
+
+// ============================================================
+// VALIDATION HELPERS — the agent never receives raw user input
+// ============================================================
+
+class ToolError extends Error {
+  constructor(code, message) {
+    super(message);
+    this.code = code;
+  }
+}
+
+function requireArray(value, name) {
+  if (!Array.isArray(value)) throw new ToolError('INVALID_CONTEXT', `"${name}" debe ser una lista de registros de PharmaCore.`);
+  return value;
+}
+
+function toInt(value, { name, min, max, fallback }) {
+  if (value === undefined || value === null || value === '') return fallback;
+  const n = Number(value);
+  if (!Number.isFinite(n)) throw new ToolError('INVALID_PARAM', `El parámetro "${name}" debe ser numérico.`);
+  const rounded = Math.round(n);
+  if (rounded < min || rounded > max) throw new ToolError('INVALID_PARAM', `El parámetro "${name}" debe estar entre ${min} y ${max}.`);
+  return rounded;
+}
+
+function toText(value, { name, maxLength = 120 }) {
+  if (value === undefined || value === null) return '';
+  if (typeof value !== 'string') throw new ToolError('INVALID_PARAM', `El parámetro "${name}" debe ser texto.`);
+  return value.trim().slice(0, maxLength);
+}
+
+function normalize(text) {
+  return String(text || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[¿?¡!.,;:]/g, '')
+    .trim();
+}
+
+function daysUntil(dateStr, now = new Date()) {
+  const parsed = new Date(dateStr);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return Math.ceil((parsed - now) / (1000 * 60 * 60 * 24));
 }
 
 // ============================================================
@@ -73,9 +125,9 @@ function get_out_of_stock_products(products) {
 function get_expiring_products(products, days = 90) {
   const now = new Date();
   const classified = products
+    .filter(p => daysUntil(p.exp, now) !== null)
     .map(p => {
-      const exp = new Date(p.exp);
-      const diffDays = Math.ceil((exp - now) / (1000 * 60 * 60 * 24));
+      const diffDays = daysUntil(p.exp, now);
       let risk = 'NORMAL';
       if (diffDays <= 0) risk = 'VENCIDO';
       else if (diffDays <= 30) risk = 'CRÍTICO';
@@ -97,7 +149,7 @@ function get_expiring_products(products, days = 90) {
 }
 
 function get_sales_summary(sales) {
-  if (!sales.length) return { tool: 'get_sales_summary', count: 0, total: 0, average: 0 };
+  if (!sales.length) return { tool: 'get_sales_summary', count: 0, total: 0, average: 0, byMethod: {}, byDate: {}, bestDay: { date: '', total: 0 }, recentSales: [] };
   const total = sales.reduce((a, s) => a + s.total, 0);
   const byMethod = {};
   sales.forEach(s => { byMethod[s.method] = (byMethod[s.method] || 0) + 1; });
@@ -275,20 +327,210 @@ function get_sales_by_period(sales) {
   };
 }
 
+function get_product_sales_history(products, sales, productQuery) {
+  const needle = normalize(productQuery);
+  if (!needle) throw new ToolError('INVALID_PARAM', 'Indica el nombre del producto a consultar.');
+  const product = products.find(p => normalize(p.name).includes(needle) || normalize(p.id) === needle);
+  if (!product) return { tool: 'get_product_sales_history', found: false, query: productQuery, lines: [], units: 0, revenue: 0 };
+  const lines = [];
+  sales.forEach(s => (s.items || []).forEach(it => {
+    if (it.name === product.name) lines.push({ saleId: s.id, date: s.date, time: s.time, user: s.user, qty: it.qty, price: it.price, subtotal: Math.round(it.qty * it.price * 100) / 100, method: s.method });
+  }));
+  lines.sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  const units = lines.reduce((a, l) => a + l.qty, 0);
+  const revenue = lines.reduce((a, l) => a + l.subtotal, 0);
+  return {
+    tool: 'get_product_sales_history',
+    found: true,
+    product,
+    lines,
+    units,
+    revenue: Math.round(revenue * 100) / 100,
+    transactions: lines.length,
+  };
+}
+
+function get_active_users(users) {
+  const directory = users.map(u => ({
+    name: u.name,
+    role: u.role,
+    active: !!u.active,
+    sales: u.sales || 0,
+    perms: u.perms || ROLE_PERMISSIONS[u.role]?.join(', ') || '—',
+    since: u.since || '—',
+  }));
+  return {
+    tool: 'get_active_users',
+    users: directory,
+    active: directory.filter(u => u.active).length,
+    total: directory.length,
+  };
+}
+
+// ============================================================
+// TOOL REGISTRY — single controlled entry point to business logic.
+// Every tool declares its permission, parameters and data source so the
+// same definitions can later be exposed as MCP tools without changes.
+// ============================================================
+
+const TOOL_REGISTRY = {
+  get_inventory_summary: {
+    permission: 'inventory_read',
+    description: 'Estado agregado del inventario: totales, valor, salud de stock y desglose por categoría.',
+    params: {},
+    source: 'products',
+    run: ({ products }) => get_inventory_summary(products),
+  },
+  get_low_stock_products: {
+    permission: 'inventory_read',
+    description: 'Productos por debajo del stock mínimo y agotados, con déficit y nivel de riesgo.',
+    params: {},
+    source: 'products',
+    run: ({ products }) => get_low_stock_products(products),
+  },
+  get_out_of_stock_products: {
+    permission: 'inventory_read',
+    description: 'Productos con stock cero.',
+    params: {},
+    source: 'products',
+    run: ({ products }) => get_out_of_stock_products(products),
+  },
+  get_expiring_products: {
+    permission: 'inventory_read',
+    description: 'Productos próximos a vencer clasificados en VENCIDO / CRÍTICO / PRÓXIMO / PRECAUCIÓN.',
+    params: { days: { type: 'integer', min: 1, max: 730, default: 90 } },
+    source: 'products.exp',
+    run: ({ products }, args) => get_expiring_products(products, toInt(args.days, { name: 'days', min: 1, max: 730, fallback: 90 })),
+  },
+  get_inventory_alerts: {
+    permission: 'inventory_read',
+    description: 'Alertas operativas combinadas de stock y vencimiento con prioridad.',
+    params: {},
+    source: 'products',
+    run: ({ products }) => get_inventory_alerts(products),
+  },
+  get_sales_summary: {
+    permission: 'sales',
+    description: 'Resumen de ventas: transacciones, ingresos, ticket promedio y métodos de pago.',
+    params: {},
+    source: 'sales',
+    run: ({ sales }) => get_sales_summary(sales),
+  },
+  get_sales_by_period: {
+    permission: 'sales',
+    description: 'Ingresos agrupados por fecha con mejor y peor día registrado.',
+    params: {},
+    source: 'sales.date',
+    run: ({ sales }) => get_sales_by_period(sales),
+  },
+  get_top_products: {
+    permission: 'products_read',
+    description: 'Productos ordenados por unidades vendidas históricas.',
+    params: { limit: { type: 'integer', min: 1, max: 50, default: 5 } },
+    source: 'products.sold',
+    run: ({ products }, args) => get_top_products(products, toInt(args.limit, { name: 'limit', min: 1, max: 50, fallback: 5 })),
+  },
+  get_low_movement_products: {
+    permission: 'analysis',
+    description: 'Productos con stock disponible y baja rotación histórica.',
+    params: { threshold: { type: 'integer', min: 1, max: 10000, default: 50 } },
+    source: 'products.sold',
+    run: ({ products }, args) => get_low_movement_products(products, toInt(args.threshold, { name: 'threshold', min: 1, max: 10000, fallback: 50 })),
+  },
+  get_category_performance: {
+    permission: 'analysis',
+    description: 'Ingresos, unidades, participación y stock por categoría farmacéutica.',
+    params: {},
+    source: 'products + sales',
+    run: ({ products, sales }) => get_category_performance(products, sales),
+  },
+  get_payment_method_summary: {
+    permission: 'sales',
+    description: 'Distribución de transacciones e ingresos por método de pago.',
+    params: {},
+    source: 'sales.method',
+    run: ({ sales }) => get_payment_method_summary(sales),
+  },
+  get_product_sales_history: {
+    permission: 'sales',
+    description: 'Historial de ventas de un producto concreto.',
+    params: { product: { type: 'string', required: true, maxLength: 120 } },
+    source: 'products + sales.items',
+    run: ({ products, sales }, args) => get_product_sales_history(products, sales, toText(args.product, { name: 'product' })),
+  },
+  get_dashboard_metrics: {
+    permission: 'dashboard',
+    description: 'Métricas ejecutivas del dashboard (ingresos, transacciones, alertas, usuarios activos).',
+    params: {},
+    source: 'products + sales + users',
+    run: ({ products, sales, users }) => get_dashboard_metrics(products, sales, users),
+  },
+  get_active_users: {
+    permission: 'all',
+    description: 'Directorio de usuarios del sistema y su estado. Solo Administrador.',
+    params: {},
+    source: 'users',
+    run: ({ users }) => get_active_users(users),
+  },
+  detect_anomalies: {
+    permission: 'analysis',
+    description: 'Posibles anomalías operativas cruzando inventario y ventas.',
+    params: {},
+    source: 'products + sales',
+    run: ({ products, sales }) => detect_anomalies(products, sales),
+  },
+};
+
+function listTools(role) {
+  return Object.entries(TOOL_REGISTRY).map(([name, def]) => ({
+    name,
+    description: def.description,
+    permission: def.permission,
+    params: def.params,
+    source: def.source,
+    readOnly: true,
+    allowedForRole: hasPermission(role, def.permission),
+  }));
+}
+
+// Executes a registered tool after validating existence, permissions and params.
+function runTool(name, context, args = {}, role = DEFAULT_ROLE) {
+  const def = TOOL_REGISTRY[name];
+  if (!def) return { ok: false, code: 'UNKNOWN_TOOL', error: `La herramienta "${name}" no existe en PharmaCore AI.` };
+  if (!hasPermission(role, def.permission)) {
+    return { ok: false, code: 'PERMISSION_DENIED', error: `El rol "${role}" no tiene permiso para ejecutar "${name}".`, permission: def.permission };
+  }
+  try {
+    return { ok: true, tool: name, data: def.run(context, args) };
+  } catch (err) {
+    if (err instanceof ToolError) return { ok: false, code: err.code, error: err.message };
+    console.error(`[tool:${name}]`, err);
+    return { ok: false, code: 'TOOL_ERROR', error: `Error ejecutando "${name}".` };
+  }
+}
+
 // ============================================================
 // NLU — Intent Detection (Spanish keyword matching)
 // ============================================================
 
+const FOLLOW_UP_WORDS = ['de esos', 'de ellos', 'de esas', 'de estos', 'los anteriores', 'esos', 'esas', 'ellos', 'los que', 'cual de', 'cuales de'];
+
+// A follow-up only applies when the previous turn returned items to reason about.
+function isFollowUpQuestion(q, lastCtx) {
+  if (!lastCtx || !Array.isArray(lastCtx.contextItems) || lastCtx.contextItems.length === 0) return false;
+  if (q.length > 90) return false;
+  return FOLLOW_UP_WORDS.some(w => q.includes(w)) || /^(y |ademas|cuales|cual|cuantos|cuantas)\b/.test(q);
+}
+
 function detectIntent(question, history = []) {
-  const q = question.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const q = normalize(question);
   const lastCtx = history.length > 0 ? history[history.length - 1] : null;
 
-  // Follow-up detection
-  const followUpWords = ['cuales', 'cual', 'los que', 'de esos', 'de ellos', 'los anteriores', 'esos', 'ellos', 'cuantos'];
-  const isFollowUp = followUpWords.some(w => q.includes(w)) && lastCtx;
+  if (isFollowUpQuestion(q, lastCtx)) return 'follow_up';
 
-  if (q.includes('agotado') || (q.includes('sin stock') && !q.includes('bajo'))) return 'out_of_stock';
-  if (q.includes('stock bajo') || q.includes('bajo stock') || q.includes('minimo') || q.includes('minimum') || q.includes('quedarse sin') || q.includes('riesgo de stock') || q.includes('riesgo stock')) return 'low_stock';
+  if (extractProductQuery(question)) return 'product_history';
+  if (q.includes('stock bajo') || q.includes('bajo stock') || q.includes('minimo') || q.includes('minimum') || q.includes('quedarse sin') || q.includes('riesgo de stock') || q.includes('riesgo stock') || q.includes('reponer') || q.includes('reposicion')) return 'low_stock';
+  if (q.includes('agotado') || q.includes('sin stock') || q.includes('stock cero')) return 'out_of_stock';
   if (q.includes('venc') || q.includes('expir') || q.includes('caducar') || q.includes('fecha')) return 'expiration';
   if (q.includes('anomal') || q.includes('extran') || q.includes('raro') || q.includes('inusual') || q.includes('detecta problema') || q.includes('detec')) return 'anomaly';
   if (q.includes('mas vendido') || q.includes('top') || q.includes('popular') || q.includes('lider') || q.includes('mejor producto')) return 'top_products';
@@ -302,12 +544,20 @@ function detectIntent(question, history = []) {
   if (q.includes('analic') || q.includes('anali') || q.includes('diagnostico') || q.includes('resumen') || q.includes('situacion') || q.includes('como esta') || q.includes('estado') || q.includes('overview')) return 'business_overview';
   if (q.includes('usuario') || q.includes('equipo') || q.includes('personal')) return 'users';
 
-  // Default: if follow-up about stock in context of previous
-  if (isFollowUp) {
-    if (q.includes('stock') || q.includes('cantidad')) return lastCtx.intent || 'inventory';
-    return lastCtx.intent || 'inventory';
-  }
   return 'general';
+}
+
+// Extracts the product name from questions like "ventas de Amoxicilina 500mg".
+// Time expressions ("ventas de este mes") are not products.
+const TIME_EXPRESSIONS = ['hoy', 'ayer', 'este mes', 'el mes', 'la semana', 'esta semana', 'este ano', 'el ano', 'el dia', 'los ultimos', 'la farmacia', 'mi farmacia'];
+
+function extractProductQuery(question) {
+  const match = question.match(/(?:historial de|ventas de|movimiento de|rotacion de|rotación de)\s+(.+)$/i);
+  if (!match) return '';
+  const candidate = match[1].replace(/[?¿.!]/g, '').trim();
+  const normalized = normalize(candidate);
+  if (!candidate || TIME_EXPRESSIONS.some(t => normalized.startsWith(t))) return '';
+  return candidate;
 }
 
 // ============================================================
@@ -333,6 +583,8 @@ function generateResponse(intent, toolResults, question, history, userRole) {
     case 'recommendations': return generateRecommendationsResponse(toolResults);
     case 'business_overview': return generateBusinessOverviewResponse(toolResults);
     case 'users': return generateUsersResponse(toolResults);
+    case 'product_history': return generateProductHistoryResponse(toolResults);
+    case 'follow_up': return generateFollowUpResponse(question, previousCtx);
     default: return generateGeneralResponse(toolResults);
   }
 }
@@ -511,6 +763,7 @@ function generateCategoryResponse(data) {
 
 function generatePaymentResponse(data) {
   const { methods } = data;
+  if (!methods.length) return { html: tag('info', 'No hay suficientes datos en PharmaCore para analizar métodos de pago: no existen ventas registradas.'), intent: 'payment', toolsUsed: ['get_payment_method_summary'] };
   let html = tag('source', `Basado en el <strong>método de pago registrado</strong> en cada venta en PharmaCore.`);
   html += tag('data', productTable(methods, [
     { key: 'method', label: 'Método' },
@@ -632,6 +885,78 @@ function generateUsersResponse(toolResults) {
   const active = users.filter(u => u.active).length;
   html += tag('analysis', `${active} de ${users.length} usuarios están activos. El equipo procesa un total de ${users.reduce((a, u) => a + u.sales, 0)} ventas registradas en el sistema.`);
   return { html, intent: 'users', toolsUsed: ['get_active_users'] };
+}
+
+function generateProductHistoryResponse(data) {
+  if (!data.found) {
+    return {
+      html: tag('info', `No encontré ningún producto que coincida con <strong>"${data.query}"</strong> en el catálogo de PharmaCore.`),
+      intent: 'product_history', toolsUsed: ['get_product_sales_history'],
+    };
+  }
+  const { product, lines, units, revenue, transactions } = data;
+  let html = tag('source', `Basado en las <strong>líneas de venta registradas</strong> en PharmaCore para <strong>${product.name}</strong>.`);
+  if (transactions === 0) {
+    html += tag('warning', `<strong>${product.name}</strong> no registra ventas en el historial disponible. Stock actual: ${product.stock} unidades (mínimo ${product.min}).`);
+    html += tag('recommendation', `Revisar si el producto está correctamente disponible en el punto de venta o si procede ajustar su nivel de stock.`);
+    return { html, intent: 'product_history', toolsUsed: ['get_product_sales_history'], contextItems: [product] };
+  }
+  html += tag('finding', `<strong>${product.name}</strong> registra <strong>${units} unidades</strong> en ${transactions} transacción${transactions !== 1 ? 'es' : ''}, con Bs ${revenue.toLocaleString()} en ingresos.`);
+  html += tag('data', productTable(lines.slice(0, 10), [
+    { key: 'saleId', label: 'Venta' },
+    { key: 'date', label: 'Fecha' },
+    { key: 'user', label: 'Usuario' },
+    { key: 'qty', label: 'Unidades' },
+    { key: 'subtotal', label: 'Subtotal', format: l => `Bs ${l.subtotal.toFixed(2)}` },
+    { key: 'method', label: 'Método' },
+  ]));
+  const coverage = product.stock > 0 && units > 0 ? Math.round((product.stock / units) * 100) / 100 : 0;
+  html += tag('analysis', `Stock actual: <strong>${product.stock}</strong> unidades frente a un mínimo de ${product.min}. ${coverage ? `Relación stock/unidades vendidas registradas: ${coverage}.` : ''}`);
+  html += tag('recommendation', product.stock <= product.min
+    ? `Revisar reposición con ${product.prov}: el stock está en o por debajo del mínimo con demanda registrada.`
+    : `Mantener el nivel actual de reposición y monitorear la evolución semanal.`);
+  return { html, intent: 'product_history', toolsUsed: ['get_product_sales_history'], contextItems: [product] };
+}
+
+// Answers questions that refer to the items returned in the previous turn.
+function generateFollowUpResponse(question, previousCtx) {
+  const items = (previousCtx && previousCtx.contextItems) || [];
+  if (!items.length) return generateGeneralResponse({});
+  const q = normalize(question);
+  const criteria = [
+    { keys: ['stock', 'unidades', 'cantidad', 'disponible'], field: 'stock', label: 'stock actual', asc: q.includes('menos') || q.includes('menor') },
+    { keys: ['vend', 'demanda', 'rotacion', 'movimiento'], field: 'sold', label: 'unidades vendidas', asc: q.includes('menos') || q.includes('menor') },
+    { keys: ['venc', 'caduc', 'expira', 'urgente', 'pronto'], field: 'daysLeft', label: 'días hasta el vencimiento', asc: true },
+    { keys: ['precio', 'caro', 'barato', 'valor'], field: 'price', label: 'precio de venta', asc: q.includes('barato') || q.includes('menor') },
+  ];
+  const chosen = criteria.find(c => c.keys.some(k => q.includes(k)) && items.some(i => i[c.field] !== undefined));
+  const field = chosen ? chosen.field : (items[0].stock !== undefined ? 'stock' : null);
+  const label = chosen ? chosen.label : 'stock actual';
+  const asc = chosen ? chosen.asc : false;
+
+  if (!field) {
+    return {
+      html: tag('info', `De los <strong>${items.length}</strong> elementos del análisis anterior no puedo derivar ese criterio. Prueba con “los que tienen más stock”, “los más vendidos” o “los que vencen antes”.`),
+      intent: 'follow_up', toolsUsed: [], contextItems: items,
+    };
+  }
+
+  const sorted = [...items]
+    .filter(i => typeof i[field] === 'number')
+    .sort((a, b) => asc ? a[field] - b[field] : b[field] - a[field]);
+
+  let html = tag('source', `Continuando con los <strong>${items.length} productos</strong> del análisis anterior (${previousCtx.intent || 'consulta previa'}), ordenados por ${label}.`);
+  html += tag('finding', `Encabeza la lista <strong>${sorted[0].name}</strong> con ${sorted[0][field]}${field === 'daysLeft' ? ' días restantes' : ''}.`);
+  const columns = [
+    { key: 'name', label: 'Producto' },
+    { key: 'cat', label: 'Categoría' },
+    { key: 'stock', label: 'Stock' },
+    { key: 'sold', label: 'Vendidos' },
+  ];
+  if (items.some(i => i.daysLeft !== undefined)) columns.push({ key: 'exp', label: 'Vence' }, { key: 'daysLeft', label: 'Días' });
+  html += tag('data', productTable(sorted.slice(0, 8), columns));
+  html += tag('recommendation', `Priorizar la gestión operativa siguiendo este orden: ${sorted.slice(0, 3).map(p => p.name).join(', ')}.`);
+  return { html, intent: 'follow_up', toolsUsed: [], contextItems: sorted };
 }
 
 function generateGeneralResponse(toolResults) {
@@ -776,94 +1101,178 @@ function generateAIInsights(products, sales, users) {
 }
 
 // ============================================================
+// AGENT PLANNER — maps an intent to the tools it is allowed to run.
+// The agent never touches business logic directly: it only names tools.
+// ============================================================
+
+const INTENT_PLANS = {
+  low_stock: [{ tool: 'get_low_stock_products' }],
+  out_of_stock: [{ tool: 'get_out_of_stock_products' }],
+  expiration: [{ tool: 'get_expiring_products', args: { days: 90 } }],
+  top_products: [{ tool: 'get_top_products', args: { limit: 8 } }],
+  low_movement: [{ tool: 'get_low_movement_products' }],
+  sales: [{ tool: 'get_sales_summary' }],
+  sales_period: [{ tool: 'get_sales_by_period' }],
+  category: [{ tool: 'get_category_performance' }],
+  payment: [{ tool: 'get_payment_method_summary' }],
+  inventory: [{ tool: 'get_inventory_summary' }],
+  anomaly: [{ tool: 'detect_anomalies' }],
+  users: [{ tool: 'get_active_users' }],
+  product_history: [{ tool: 'get_product_sales_history', as: 'history' }],
+  recommendations: [
+    { tool: 'get_low_stock_products', as: 'lowStockData' },
+    { tool: 'get_expiring_products', as: 'expirationData', args: { days: 60 } },
+    { tool: 'get_category_performance', as: 'categoryData' },
+    { tool: 'get_top_products', as: 'topProducts', args: { limit: 5 } },
+    { tool: 'get_inventory_summary', as: 'inventorySummary' },
+  ],
+  business_overview: [
+    { tool: 'get_dashboard_metrics', as: 'metrics' },
+    { tool: 'get_inventory_summary', as: 'inventorySummary' },
+    { tool: 'get_low_stock_products', as: 'lowStockData' },
+    { tool: 'get_expiring_products', as: 'expirationData', args: { days: 90 } },
+    { tool: 'get_category_performance', as: 'categoryData' },
+    { tool: 'get_low_movement_products', as: 'lowMovementData' },
+  ],
+  follow_up: [],
+  general: [{ tool: 'get_dashboard_metrics', as: 'metrics' }],
+};
+
+// Runs a plan: single-tool plans return the tool payload directly, multi-tool
+// plans return a keyed object. Permission or validation failures abort the plan.
+function executePlan(intent, context, role, extraArgs = {}) {
+  const plan = INTENT_PLANS[intent] || INTENT_PLANS.general;
+  const toolsUsed = [];
+  const results = {};
+  let single = null;
+
+  for (const step of plan) {
+    const args = { ...(step.args || {}), ...(extraArgs[step.tool] || {}) };
+    const outcome = runTool(step.tool, context, args, role);
+    if (!outcome.ok) return { ok: false, ...outcome };
+    toolsUsed.push(step.tool);
+    if (step.as) results[step.as] = outcome.data;
+    else single = outcome.data;
+  }
+
+  const data = plan.length === 1 && !plan[0].as ? single : results;
+  return { ok: true, data: data === null ? {} : data, toolsUsed };
+}
+
+// ============================================================
 // API ROUTES
 // ============================================================
 
 app.post('/api/ai/chat', (req, res) => {
   try {
-    const { question, context, conversationHistory = [], userRole = 'Administrador' } = req.body;
-    if (!question || !context) return res.status(400).json({ error: 'question and context are required' });
+    const { question, context, conversationHistory = [], userRole } = req.body || {};
+    if (typeof question !== 'string' || !question.trim()) return res.status(400).json({ error: 'question is required' });
+    if (!context || typeof context !== 'object') return res.status(400).json({ error: 'context is required' });
 
-    const { products = [], sales = [], users = [] } = context;
-    const intent = detectIntent(question, conversationHistory);
+    const role = resolveRole(userRole);
+    const cleanQuestion = question.trim().slice(0, 500);
+    const history = Array.isArray(conversationHistory) ? conversationHistory.slice(-6) : [];
+    const toolContext = {
+      products: requireArray(context.products || [], 'products'),
+      sales: requireArray(context.sales || [], 'sales'),
+      users: requireArray(context.users || [], 'users'),
+    };
 
-    // Permission check
-    const restrictedIntents = { users: 'all', business_overview: 'all', anomaly: 'analysis' };
-    const requiredPerm = restrictedIntents[intent];
-    if (requiredPerm && !hasPermission(userRole, requiredPerm)) {
-      return res.json({
-        html: tag('warning', `No tienes permisos para acceder a este análisis con el rol <strong>${userRole}</strong>.`),
-        intent, toolsUsed: [], permissionDenied: true,
+    const intent = detectIntent(cleanQuestion, history);
+    const extraArgs = intent === 'product_history'
+      ? { get_product_sales_history: { product: extractProductQuery(cleanQuestion) } }
+      : {};
+
+    const execution = executePlan(intent, toolContext, role, extraArgs);
+    if (!execution.ok) {
+      const denied = execution.code === 'PERMISSION_DENIED';
+      return res.status(denied ? 403 : 400).json({
+        intent,
+        toolsUsed: [],
+        permissionDenied: denied,
+        code: execution.code,
+        html: tag('warning', denied
+          ? `El rol <strong>${role}</strong> no tiene permisos para este análisis en PharmaCore AI.`
+          : execution.error),
       });
     }
 
-    // Execute relevant tools
-    let toolResults = {};
-    switch (intent) {
-      case 'low_stock': toolResults = get_low_stock_products(products); break;
-      case 'out_of_stock': toolResults = get_out_of_stock_products(products); break;
-      case 'expiration': toolResults = get_expiring_products(products); break;
-      case 'top_products': toolResults = get_top_products(products, 8); break;
-      case 'low_movement': toolResults = get_low_movement_products(products); break;
-      case 'sales': toolResults = get_sales_summary(sales); break;
-      case 'sales_period': toolResults = get_sales_by_period(sales); break;
-      case 'category': toolResults = get_category_performance(products, sales); break;
-      case 'payment': toolResults = get_payment_method_summary(sales); break;
-      case 'inventory': toolResults = get_inventory_summary(products); break;
-      case 'anomaly': toolResults = detect_anomalies(products, sales); break;
-      case 'users': toolResults = { users }; break;
-      case 'recommendations':
-        toolResults = {
-          lowStockData: get_low_stock_products(products),
-          expirationData: get_expiring_products(products, 60),
-          categoryData: get_category_performance(products, sales),
-          topProducts: get_top_products(products, 5),
-          inventorySummary: get_inventory_summary(products),
-        }; break;
-      case 'business_overview':
-        toolResults = {
-          metrics: get_dashboard_metrics(products, sales, users),
-          inventorySummary: get_inventory_summary(products),
-          lowStockData: get_low_stock_products(products),
-          expirationData: get_expiring_products(products, 90),
-          categoryData: get_category_performance(products, sales),
-          lowMovementData: get_low_movement_products(products),
-        }; break;
-      default:
-        toolResults = get_dashboard_metrics(products, sales, users);
-    }
-
-    const response = generateResponse(intent, toolResults, question, conversationHistory, userRole);
-    res.json(response);
+    const payload = intent === 'product_history' ? execution.data.history : execution.data;
+    const response = generateResponse(intent, payload, cleanQuestion, history, role);
+    res.json({ ...response, role, toolsUsed: response.toolsUsed?.length ? response.toolsUsed : execution.toolsUsed });
   } catch (err) {
+    if (err instanceof ToolError) return res.status(400).json({ error: err.message, code: err.code, html: tag('warning', err.message) });
     console.error('AI chat error:', err);
     res.status(500).json({ error: 'Internal error', html: tag('warning', 'Error procesando la consulta. Inténtalo nuevamente.') });
   }
 });
 
+// Which permission each insight card requires.
+const INSIGHT_PERMISSIONS = {
+  stock_risk: 'inventory_read',
+  expiration_risk: 'inventory_read',
+  sales_trend: 'sales',
+  low_movement: 'analysis',
+  top_products: 'products_read',
+  revenue_opportunities: 'analysis',
+  inventory_anomalies: 'analysis',
+  ai_recommendations: 'inventory_read',
+};
+
 app.get('/api/ai/insights', (req, res) => {
-  try {
-    const { products, sales, users } = req.query;
-    // For GET requests, insights are generated from query params or defaults
-    // In practice, the frontend posts context via the insights endpoint
-    res.json({ message: 'Use POST /api/ai/insights' });
-  } catch (err) {
-    res.status(500).json({ error: 'Internal error' });
-  }
+  res.status(405).json({ error: 'Use POST /api/ai/insights con el contexto de PharmaCore en el body.' });
 });
 
 app.post('/api/ai/insights', (req, res) => {
   try {
-    const { products = [], sales = [], users = [] } = req.body;
-    const insights = generateAIInsights(products, sales, users);
-    res.json({ insights });
+    const { products = [], sales = [], users = [], userRole } = req.body || {};
+    const role = resolveRole(userRole);
+    const all = generateAIInsights(requireArray(products, 'products'), requireArray(sales, 'sales'), requireArray(users, 'users'));
+    const insights = all.filter(i => hasPermission(role, INSIGHT_PERMISSIONS[i.id] || 'all'));
+    res.json({ insights, role, restricted: all.length - insights.length });
   } catch (err) {
+    if (err instanceof ToolError) return res.status(400).json({ error: err.message, code: err.code });
     console.error('Insights error:', err);
     res.status(500).json({ error: 'Internal error' });
   }
 });
 
+// Tool catalogue — the same metadata that would be exposed as MCP tools.
+app.get('/api/ai/tools', (req, res) => {
+  const role = resolveRole(req.query.role);
+  res.json({ role, readOnly: true, tools: listTools(role) });
+});
+
+// Controlled execution of a single tool (read-only).
+app.post('/api/ai/tools/:name', (req, res) => {
+  try {
+    const { products = [], sales = [], users = [], userRole, params = {} } = req.body || {};
+    const role = resolveRole(userRole);
+    const context = {
+      products: requireArray(products, 'products'),
+      sales: requireArray(sales, 'sales'),
+      users: requireArray(users, 'users'),
+    };
+    const outcome = runTool(req.params.name, context, params, role);
+    if (!outcome.ok) {
+      const status = outcome.code === 'UNKNOWN_TOOL' ? 404 : outcome.code === 'PERMISSION_DENIED' ? 403 : 400;
+      return res.status(status).json(outcome);
+    }
+    res.json(outcome);
+  } catch (err) {
+    if (err instanceof ToolError) return res.status(400).json({ ok: false, code: err.code, error: err.message });
+    console.error('Tool execution error:', err);
+    res.status(500).json({ ok: false, code: 'TOOL_ERROR', error: 'Internal error' });
+  }
+});
+
+// Roles and their permissions, used by the frontend to explain restrictions.
+app.get('/api/ai/roles', (req, res) => res.json({ roles: ROLE_PERMISSIONS, defaultRole: DEFAULT_ROLE }));
+
 app.get('/api/health', (req, res) => res.json({ status: 'ok', version: '2.0.0', name: 'PharmaCore AI' }));
+
+// Case study deep link — served by the same SPA shell.
+app.get('/pharmacore-ai', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => {
