@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PharmaCore SAP — Sistema Integral Farmacéutico</title>
+<title>PharmaCore AI — Plataforma Farmacéutica con Inteligencia de Negocio</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="demo-data.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -171,6 +172,105 @@
   ::-webkit-scrollbar{width:5px;}
   ::-webkit-scrollbar-track{background:transparent;}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+
+  /* ========== PHARMACORE AI ========== */
+  .ai-hero{background:linear-gradient(120deg,var(--nav) 0%,var(--nav2) 55%,#0A5637 100%);border-radius:16px;padding:24px 26px;color:#fff;margin-bottom:20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+  .ai-hero h2{font-size:20px;font-weight:700;letter-spacing:-.4px;display:flex;align-items:center;gap:10px;}
+  .ai-hero p{font-size:13px;color:rgba(255,255,255,.7);margin-top:6px;max-width:520px;}
+  .ai-hero-meta{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;}
+  .ai-chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:8px 12px;font-size:11px;font-weight:600;color:#fff;}
+  .ai-chip span{display:block;font-size:16px;font-weight:700;margin-top:2px;font-family:var(--mono);}
+  .ai-chip.ai-chip-alert{background:rgba(229,62,62,.22);border-color:rgba(229,62,62,.4);}
+
+  .ai-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+  .ai-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:8px;border-top:3px solid var(--border);}
+  .ai-card.p-CRITICO{border-top-color:var(--red);}
+  .ai-card.p-ALTO{border-top-color:var(--amber);}
+  .ai-card.p-MEDIO{border-top-color:var(--blue);}
+  .ai-card.p-OK,.ai-card.p-INFO{border-top-color:var(--acc);}
+  .ai-card-head{display:flex;align-items:center;gap:8px;}
+  .ai-card-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);}
+  .ai-pill{margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.6px;padding:2px 8px;border-radius:20px;background:#F1F5F3;color:var(--muted);}
+  .ai-pill.p-CRITICO{background:#FEE2E2;color:#991B1B;}
+  .ai-pill.p-ALTO{background:#FEF3C7;color:#92400E;}
+  .ai-pill.p-MEDIO{background:#DBEAFE;color:#1E40AF;}
+  .ai-pill.p-OK{background:#DCFCE7;color:#166534;}
+  .ai-card-summary{font-size:15px;font-weight:700;letter-spacing:-.3px;}
+  .ai-card-detail{font-size:11.5px;color:var(--muted);line-height:1.6;}
+  .ai-card-rec{font-size:11.5px;line-height:1.6;border-top:1px dashed var(--border);padding-top:8px;color:var(--text);}
+  .ai-card-rec b{color:var(--acc2);}
+
+  .ai-workspace{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start;}
+  .ai-chat{background:var(--card);border:1px solid var(--border);border-radius:14px;display:flex;flex-direction:column;height:calc(100vh - 250px);min-height:460px;}
+  .ai-chat-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+  .ai-chat-head h3{font-size:14px;font-weight:700;}
+  .ai-chat-head .ai-role{margin-left:auto;font-size:11px;color:var(--muted);}
+  .ai-chat-log{flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:16px;}
+  .ai-msg-user{align-self:flex-end;max-width:78%;background:var(--acc2);color:#fff;padding:10px 14px;border-radius:12px 12px 2px 12px;font-size:13px;font-weight:500;}
+  .ai-msg-ai{max-width:100%;font-size:13px;line-height:1.6;}
+  .ai-msg-meta{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:8px;}
+  .ai-chat-input{border-top:1px solid var(--border);padding:14px 16px;display:flex;gap:10px;}
+  .ai-chat-input input{flex:1;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:var(--font);font-size:13px;outline:none;color:var(--text);}
+  .ai-chat-input input:focus{border-color:var(--acc);}
+  .ai-send{padding:11px 20px;background:var(--acc);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);}
+  .ai-send:hover{background:var(--acc2);}
+  .ai-send:disabled{opacity:.5;cursor:not-allowed;}
+
+  .ai-side{display:flex;flex-direction:column;gap:14px;}
+  .ai-side-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;}
+  .ai-side-card h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:12px;}
+  .ai-suggest{display:block;width:100%;text-align:left;background:#F7FAF8;border:1px solid var(--border);border-radius:9px;padding:9px 11px;font-size:12px;font-family:var(--font);color:var(--text);cursor:pointer;margin-bottom:7px;line-height:1.4;}
+  .ai-suggest:hover{border-color:var(--acc);background:#fff;}
+  .ai-tool-item{font-size:11px;font-family:var(--mono);color:var(--muted);padding:4px 0;display:flex;gap:6px;align-items:center;}
+  .ai-tool-item b{color:var(--text);font-family:var(--font);}
+
+  /* Response blocks rendered by the backend */
+  .air-section{display:flex;gap:10px;padding:12px 14px;border-radius:11px;background:#F7FAF8;border:1px solid var(--border);margin-bottom:10px;font-size:13px;line-height:1.6;}
+  .air-icon{flex-shrink:0;font-size:14px;}
+  .air-body{flex:1;min-width:0;}
+  .air-source{background:#F1F5F9;border-color:#E2E8F0;font-size:12px;color:var(--muted);}
+  .air-critical{background:#FEF2F2;border-color:#FECACA;}
+  .air-warning{background:#FFFBEB;border-color:#FDE68A;}
+  .air-success{background:#F0FDF4;border-color:#BBF7D0;}
+  .air-recommendation{background:#ECFDF5;border-color:#A7F3D0;}
+  .air-analysis{background:#F5F3FF;border-color:#DDD6FE;}
+  .air-table-wrap{overflow-x:auto;margin-top:8px;}
+  .air-table{width:100%;border-collapse:collapse;font-size:12px;background:#fff;border-radius:8px;overflow:hidden;}
+  .air-table th{padding:8px 10px;font-size:9.5px;background:#F1F5F3;border-bottom:1px solid var(--border);}
+  .air-table td{padding:8px 10px;border-bottom:1px solid var(--border);font-size:12px;}
+  .air-empty{font-size:12px;color:var(--muted);font-style:italic;}
+  .air-rec-card{border:1px solid var(--border);border-left:3px solid var(--acc);border-radius:11px;padding:14px;margin-bottom:10px;background:#fff;}
+  .air-rec-header{font-size:13px;margin-bottom:8px;}
+  .air-rec-body{display:flex;flex-direction:column;gap:5px;font-size:12px;line-height:1.6;}
+  .air-label{font-size:9.5px;font-weight:700;letter-spacing:.8px;color:var(--muted);display:inline-block;min-width:74px;}
+  .air-executive-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px;}
+  .air-exec-card{background:#fff;border:1px solid var(--border);border-radius:11px;padding:12px;text-align:center;}
+  .air-exec-card.air-exec-warn{border-color:#FCD34D;background:#FFFBEB;}
+  .air-exec-val{font-size:17px;font-weight:700;font-family:var(--mono);letter-spacing:-.5px;}
+  .air-exec-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-top:2px;}
+
+  /* AI Executive Insights on the dashboard */
+  .ai-exec-strip{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--acc);border-radius:14px;padding:16px 18px;margin-bottom:20px;}
+  .ai-exec-strip-head{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+  .ai-exec-strip-head h3{font-size:13px;font-weight:700;}
+  .ai-exec-strip-head span{font-size:11px;color:var(--muted);}
+  .ai-exec-strip-head button{margin-left:auto;background:none;border:none;color:var(--acc2);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);}
+  .ai-exec-items{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  .ai-exec-item{border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.5;}
+  .ai-exec-item b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:3px;}
+
+  /* CASE STUDY */
+  .cs-hero{background:linear-gradient(120deg,var(--nav) 0%,#0A5637 100%);color:#fff;border-radius:16px;padding:36px 32px;margin-bottom:22px;}
+  .cs-hero h1{font-size:30px;font-weight:700;letter-spacing:-1px;}
+  .cs-hero p{font-size:14px;color:rgba(255,255,255,.72);margin-top:8px;}
+  .cs-section{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:16px;}
+  .cs-section h3{font-size:14px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .cs-section h3 i{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--acc2);}
+  .cs-section p,.cs-section li{font-size:13px;line-height:1.75;color:var(--text);}
+  .cs-section ul{margin:6px 0 0 18px;}
+  .cs-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .cs-flow{font-family:var(--mono);font-size:12px;background:#F7FAF8;border:1px solid var(--border);border-radius:11px;padding:16px;line-height:2;white-space:pre-wrap;}
+  .cs-tag{display:inline-block;background:#F1F5F3;border:1px solid var(--border);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:600;margin:3px 4px 0 0;}
 </style>
 </head>
 <body>
@@ -183,7 +283,7 @@
         <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
       </div>
       <div>
-        <div class="logo-text">PharmaCore</div>
+        <div class="logo-text">PharmaCore <span style="color:var(--acc)">AI</span></div>
         <div class="logo-sub">Sistema SAP Farmacéutico</div>
       </div>
     </div>
@@ -198,33 +298,42 @@
   </div>
   <nav>
     <div class="nav-section">Principal</div>
-    <div class="nav-item active" onclick="showPage('dashboard')">
+    <div class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
       Dashboard
     </div>
     <div class="nav-section">Operaciones</div>
-    <div class="nav-item" onclick="showPage('ventas')">
+    <div class="nav-item" data-page="ventas" onclick="showPage('ventas')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
       Punto de Venta
     </div>
-    <div class="nav-item" onclick="showPage('inventario')">
+    <div class="nav-item" data-page="inventario" onclick="showPage('inventario')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
       Inventario
       <span class="nav-badge" id="lowStockBadge">3</span>
     </div>
-    <div class="nav-item" onclick="showPage('historial')">
+    <div class="nav-item" data-page="historial" onclick="showPage('historial')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
       Historial de Ventas
     </div>
     <div class="nav-section">Análisis</div>
-    <div class="nav-item" onclick="showPage('analisis')">
+    <div class="nav-item" data-page="analisis" onclick="showPage('analisis')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       Análisis de Datos
     </div>
+    <div class="nav-item" data-page="pharmaai" onclick="showPage('pharmaai')">
+      <span style="font-size:15px;line-height:1">🤖</span>
+      PharmaCore AI
+      <span class="nav-badge" id="aiInsightBadge" style="background:var(--acc2);display:none">0</span>
+    </div>
     <div class="nav-section">Administración</div>
-    <div class="nav-item" onclick="showPage('usuarios')">
+    <div class="nav-item" data-page="usuarios" onclick="showPage('usuarios')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Usuarios
+    </div>
+    <div class="nav-item" data-page="casestudy" onclick="showPage('casestudy')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      Case Study
     </div>
   </nav>
   <div class="nav-bottom">
@@ -354,6 +463,17 @@ let allSales=[
 
 let saleCounter=allSales.length+1;
 
+// ===== MODO DEMO =====
+// Amplía el historial de ventas con transacciones deterministas construidas a
+// partir del catálogo real, para que el análisis de IA disponga de volumen
+// suficiente. No altera productos, usuarios ni fechas de vencimiento.
+const DEMO_MODE=true;
+if(DEMO_MODE&&window.PharmaCoreDemo){
+  const demoSales=window.PharmaCoreDemo.buildSalesHistory(products,users,{days:45});
+  allSales=[...demoSales,...allSales].sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
+  saleCounter=allSales.length+1;
+}
+
 // ===== NAVIGATION =====
 let currentPage='dashboard';
 let invFilter='all';
@@ -361,14 +481,10 @@ let chartInstances={};
 
 function showPage(page){
   currentPage=page;
-  document.querySelectorAll('.nav-item').forEach(el=>{el.classList.remove('active');});
-  const items=document.querySelectorAll('.nav-item');
-  const pages=['dashboard','ventas','inventario','historial','analisis','usuarios'];
-  const idx=pages.indexOf(page);
-  if(idx>=0)items[idx].classList.add('active');
-  const titles={dashboard:'Dashboard',ventas:'Punto de Venta',inventario:'Gestión de Inventario',historial:'Historial de Ventas',analisis:'Análisis de Datos',usuarios:'Gestión de Usuarios'};
+  document.querySelectorAll('.nav-item').forEach(el=>{el.classList.toggle('active',el.dataset.page===page);});
+  const titles={dashboard:'Dashboard',ventas:'Punto de Venta',inventario:'Gestión de Inventario',historial:'Historial de Ventas',analisis:'Análisis de Datos',usuarios:'Gestión de Usuarios',pharmaai:'PharmaCore AI',casestudy:'Case Study'};
   document.getElementById('pageTitle').textContent=titles[page]||page;
-  const addBtns={dashboard:'+ Actualizar',ventas:'',inventario:'+ Nuevo Producto',historial:'',analisis:'',usuarios:'+ Nuevo Usuario'};
+  const addBtns={dashboard:'+ Actualizar',ventas:'',inventario:'+ Nuevo Producto',historial:'',analisis:'',usuarios:'+ Nuevo Usuario',pharmaai:'',casestudy:''};
   const btn=document.getElementById('topAddBtn');
   btn.textContent=addBtns[page]||'';
   btn.style.display=addBtns[page]?'flex':'none';
@@ -393,7 +509,7 @@ setInterval(updateClock,1000);updateClock();
 // ===== RENDER PAGES =====
 function renderPage(page){
   const c=document.getElementById('content');
-  const fns={dashboard:renderDashboard,ventas:renderVentas,inventario:renderInventario,historial:renderHistorial,analisis:renderAnalisis,usuarios:renderUsuarios};
+  const fns={dashboard:renderDashboard,ventas:renderVentas,inventario:renderInventario,historial:renderHistorial,analisis:renderAnalisis,usuarios:renderUsuarios,pharmaai:renderPharmaAI,casestudy:renderCaseStudy};
   c.innerHTML='';
   if(fns[page])fns[page]();
 }
@@ -409,6 +525,7 @@ function renderDashboard(){
   const ctrl=products.filter(p=>p.cat==='Controlado').length;
 
   c.innerHTML=`
+  <div id="aiExecStrip"></div>
   <div class="alert-banner warn" id="lowAlert" style="${lowStock===0?'display:none':''}">
     ⚠️ <strong>${lowStock} productos</strong> con stock bajo el mínimo — ${outStock} agotados. Revisar inventario.
   </div>
@@ -479,6 +596,8 @@ function renderDashboard(){
       </table>
     </div>
   </div>`;
+
+  renderExecutiveInsights();
 
   setTimeout(()=>{
     chartInstances.ch1=new Chart(document.getElementById('ch1'),{
@@ -837,6 +956,318 @@ function renderUsuarios(){
   </div>`;
 }
 
+// ============================================================
+// PHARMACORE AI — frontend module.
+// All intelligence lives in the Express backend: this layer only sends the
+// operational context of the session and renders the structured answer.
+// ============================================================
+const AI_API='/api/ai';
+const AI_SUGGESTIONS=[
+  {icon:'📦',text:'¿Qué productos tienen riesgo de quedarse sin stock?'},
+  {icon:'📅',text:'¿Qué productos están próximos a vencer?'},
+  {icon:'📈',text:'Analiza las ventas de este mes.'},
+  {icon:'💊',text:'¿Cuáles son los productos más vendidos?'},
+  {icon:'🐌',text:'¿Qué productos tienen bajo movimiento?'},
+  {icon:'⚠️',text:'Detecta problemas en mi inventario.'},
+  {icon:'💰',text:'¿Qué categorías generan más ingresos?'},
+  {icon:'💡',text:'Dame tres recomendaciones para mejorar la gestión.'},
+];
+
+let aiHistory=[];
+let aiInsightsCache=null;
+let aiBusy=false;
+
+function aiContext(){
+  return {products,sales:allSales,users,userRole:currentUser.role};
+}
+
+async function aiPost(path,body){
+  const res=await fetch(`${AI_API}${path}`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(body),
+  });
+  const data=await res.json().catch(()=>({}));
+  return {status:res.status,data};
+}
+
+function aiOfflineNotice(){
+  return `<div class="air-section air-warning"><span class="air-icon">⚠️</span><div class="air-body"><strong>Backend de PharmaCore AI no disponible.</strong><br>El módulo de IA se ejecuta en el servidor Express. Inícialo con <code>npm start</code> y abre la aplicación desde <code>http://localhost:5000</code>.</div></div>`;
+}
+
+// ---------- AI INSIGHTS ----------
+async function loadInsights(force){
+  if(aiInsightsCache&&!force)return aiInsightsCache;
+  const {status,data}=await aiPost('/insights',aiContext());
+  if(status!==200||!data.insights)throw new Error('insights unavailable');
+  aiInsightsCache=data;
+  return data;
+}
+
+function insightCard(i){
+  return `<div class="ai-card p-${i.priority}">
+    <div class="ai-card-head">
+      <span style="font-size:15px">${i.icon}</span>
+      <span class="ai-card-title">${i.title}</span>
+      <span class="ai-pill p-${i.priority}">${i.priority}</span>
+    </div>
+    <div class="ai-card-summary">${i.summary}</div>
+    <div class="ai-card-detail">${i.detail}</div>
+    <div class="ai-card-rec"><b>Recomendación:</b> ${i.recommendation}</div>
+  </div>`;
+}
+
+async function renderExecutiveInsights(){
+  const host=document.getElementById('aiExecStrip');
+  if(!host)return;
+  try{
+    const {insights}=await loadInsights();
+    const wanted=['stock_risk','expiration_risk','sales_trend','top_products'];
+    const items=insights.filter(i=>wanted.includes(i.id));
+    if(!items.length){host.innerHTML='';return;}
+    host.innerHTML=`<div class="ai-exec-strip">
+      <div class="ai-exec-strip-head">
+        <span>🤖</span><h3>AI Executive Insights</h3>
+        <span>generado por PharmaCore AI a partir de inventario y ventas registrados</span>
+        <button onclick="showPage('pharmaai')">Abrir PharmaCore AI →</button>
+      </div>
+      <div class="ai-exec-items">
+        ${items.map(i=>`<div class="ai-exec-item"><b>${i.icon} ${i.title}</b>${i.summary}<div style="color:var(--muted);font-size:11px;margin-top:4px">${i.detail}</div></div>`).join('')}
+      </div>
+    </div>`;
+  }catch(e){
+    host.innerHTML='';
+  }
+}
+
+async function updateAIBadge(){
+  try{
+    const {insights}=await loadInsights(true);
+    const urgent=insights.filter(i=>i.priority==='CRÍTICO'||i.priority==='CRITICO'||i.priority==='ALTO').length;
+    const badge=document.getElementById('aiInsightBadge');
+    badge.textContent=urgent;
+    badge.style.display=urgent?'':'none';
+  }catch(e){/* backend no disponible */}
+}
+
+// ---------- AI ASSISTANT ----------
+function renderPharmaAI(){
+  const c=document.getElementById('content');
+  c.innerHTML=`
+  <div class="ai-hero">
+    <div>
+      <h2>🤖 PharmaCore AI</h2>
+      <p>Pregunta a tus datos. Detecta problemas. Toma mejores decisiones.</p>
+    </div>
+    <div class="ai-hero-meta">
+      <div class="ai-chip">Rol activo<span id="aiHeroRole">${currentUser.role}</span></div>
+      <div class="ai-chip">Productos<span>${products.length}</span></div>
+      <div class="ai-chip">Ventas analizadas<span>${allSales.length}</span></div>
+      <div class="ai-chip ai-chip-alert">Alertas de stock<span>${products.filter(p=>p.stock<=p.min).length}</span></div>
+    </div>
+  </div>
+
+  <div class="card-title" style="margin-bottom:12px">AI Insights <span onclick="refreshInsights()">Actualizar ↻</span></div>
+  <div class="ai-grid" id="aiInsightsGrid"><div class="ai-card"><div class="ai-card-detail">Analizando datos operativos…</div></div></div>
+
+  <div class="ai-workspace">
+    <div class="ai-chat">
+      <div class="ai-chat-head">
+        <span style="font-size:16px">🧠</span>
+        <h3>AI Assistant — ¿Qué quieres analizar?</h3>
+        <span class="ai-role">Respuestas limitadas por el rol <strong>${currentUser.role}</strong></span>
+      </div>
+      <div class="ai-chat-log" id="aiChatLog"></div>
+      <div class="ai-chat-input">
+        <input id="aiInput" placeholder="Ej: ¿Qué productos están próximos a vencer?" onkeydown="if(event.key==='Enter')sendAIQuestion()">
+        <button class="ai-send" id="aiSendBtn" onclick="sendAIQuestion()">Analizar</button>
+      </div>
+    </div>
+    <div class="ai-side">
+      <div class="ai-side-card">
+        <h4>Preguntas sugeridas</h4>
+        ${AI_SUGGESTIONS.map(s=>`<button class="ai-suggest" onclick="askSuggestion(this)" data-q="${s.text.replace(/"/g,'&quot;')}">${s.icon} ${s.text}</button>`).join('')}
+      </div>
+      <div class="ai-side-card">
+        <h4>Tool layer disponible</h4>
+        <div id="aiToolList" class="ai-tool-item">Cargando herramientas…</div>
+      </div>
+      <div class="ai-side-card">
+        <h4>Alcance de la v1</h4>
+        <p style="font-size:11.5px;line-height:1.7;color:var(--muted)">Solo lectura: leer, analizar y recomendar. PharmaCore AI no modifica inventario, precios, ventas ni permisos, y no emite recomendaciones clínicas.</p>
+      </div>
+    </div>
+  </div>`;
+
+  aiHistory=[];
+  renderInsightsGrid();
+  loadToolCatalogue();
+  appendAIMessage('ai',`<div class="air-section air-info"><span class="air-icon">🤖</span><div class="air-body"><strong>PharmaCore AI conectado.</strong><br>Analizo el inventario, las ventas y los vencimientos registrados en PharmaCore. Cada respuesta indica <strong>DATOS</strong>, <strong>INTERPRETACIÓN</strong> y <strong>RECOMENDACIÓN</strong>. Empieza con una pregunta sugerida o escribe la tuya.</div></div>`);
+}
+
+async function renderInsightsGrid(){
+  const grid=document.getElementById('aiInsightsGrid');
+  if(!grid)return;
+  try{
+    const {insights,restricted}=await loadInsights(true);
+    grid.innerHTML=insights.map(insightCard).join('')+
+      (restricted?`<div class="ai-card"><div class="ai-card-head"><span>🔒</span><span class="ai-card-title">Restringido</span></div><div class="ai-card-detail">${restricted} insight(s) no disponibles para el rol ${currentUser.role}.</div></div>`:'');
+    updateAIBadge();
+  }catch(e){
+    grid.innerHTML=`<div class="ai-card" style="grid-column:1/-1">${aiOfflineNotice()}</div>`;
+  }
+}
+
+function refreshInsights(){aiInsightsCache=null;renderInsightsGrid();}
+
+async function loadToolCatalogue(){
+  const host=document.getElementById('aiToolList');
+  if(!host)return;
+  try{
+    const res=await fetch(`${AI_API}/tools?role=${encodeURIComponent(currentUser.role)}`);
+    const {tools}=await res.json();
+    host.outerHTML=tools.map(t=>`<div class="ai-tool-item" title="${t.description}">${t.allowedForRole?'🟢':'🔒'} ${t.name}</div>`).join('');
+  }catch(e){
+    host.textContent='Catálogo de tools no disponible (backend apagado).';
+  }
+}
+
+function askSuggestion(btn){
+  document.getElementById('aiInput').value=btn.dataset.q;
+  sendAIQuestion();
+}
+
+function appendAIMessage(kind,html){
+  const log=document.getElementById('aiChatLog');
+  if(!log)return null;
+  const el=document.createElement('div');
+  el.className=kind==='user'?'ai-msg-user':'ai-msg-ai';
+  el.innerHTML=html;
+  log.appendChild(el);
+  log.scrollTop=log.scrollHeight;
+  return el;
+}
+
+async function sendAIQuestion(){
+  const input=document.getElementById('aiInput');
+  const question=(input.value||'').trim();
+  if(!question||aiBusy)return;
+  aiBusy=true;
+  input.value='';
+  document.getElementById('aiSendBtn').disabled=true;
+  appendAIMessage('user',question.replace(/</g,'&lt;'));
+  const pending=appendAIMessage('ai','<div class="air-section"><span class="air-icon">⏳</span><div class="air-body">Ejecutando herramientas sobre los datos de PharmaCore…</div></div>');
+
+  try{
+    const ctx=aiContext();
+    const {data}=await aiPost('/chat',{
+      question,
+      userRole:ctx.userRole,
+      conversationHistory:aiHistory.slice(-4),
+      context:{products:ctx.products,sales:ctx.sales,users:ctx.users},
+    });
+    const tools=(data.toolsUsed||[]).length?`<div class="ai-msg-meta">tools: ${data.toolsUsed.join(' · ')} · intent: ${data.intent}</div>`:'';
+    pending.innerHTML=(data.html||aiOfflineNotice())+tools;
+    aiHistory.push({role:'assistant',intent:data.intent,question,contextItems:data.contextItems||[]});
+  }catch(e){
+    pending.innerHTML=aiOfflineNotice();
+  }finally{
+    aiBusy=false;
+    const btn=document.getElementById('aiSendBtn');
+    if(btn)btn.disabled=false;
+    const log=document.getElementById('aiChatLog');
+    if(log)log.scrollTop=log.scrollHeight;
+  }
+}
+
+// ===== CASE STUDY =====
+function renderCaseStudy(){
+  const c=document.getElementById('content');
+  c.innerHTML=`
+  <div class="cs-hero">
+    <h1>PHARMACORE AI</h1>
+    <p>From pharmacy management to AI-powered decision intelligence.</p>
+  </div>
+
+  <div class="cs-grid">
+    <div class="cs-section">
+      <h3><i>01</i> The Problem</h3>
+      <p>PharmaCore registraba correctamente productos, ventas, stock y vencimientos, pero el equipo debía interpretar manualmente tablas y gráficos para detectar una ruptura de stock o un lote próximo a vencer. La información existía; la decisión operativa dependía del tiempo y la experiencia de cada usuario.</p>
+    </div>
+    <div class="cs-section">
+      <h3><i>02</i> The Solution</h3>
+      <p>Una capa de inteligencia sobre el sistema existente: un copiloto de negocio que ejecuta herramientas controladas sobre los mismos datos y devuelve <strong>datos, interpretación y recomendación operativa</strong>. No sustituye ningún módulo: los interpreta.</p>
+    </div>
+  </div>
+
+  <div class="cs-section">
+    <h3><i>03</i> AI Assistant</h3>
+    <p>Conversación con contexto sobre los datos operativos de la farmacia. Cada respuesta declara su origen (“según las fechas de vencimiento registradas…”) y las herramientas ejecutadas. Si no hay datos suficientes, lo indica en lugar de inferirlos.</p>
+    <div>${AI_SUGGESTIONS.map(s=>`<span class="cs-tag">${s.icon} ${s.text}</span>`).join('')}</div>
+  </div>
+
+  <div class="cs-grid">
+    <div class="cs-section">
+      <h3><i>04</i> AI Insights</h3>
+      <p>Ocho tarjetas de análisis permanente: Stock Risk, Expiration Risk, Sales Trend, Low Movement, Top Products, Revenue Opportunities, Inventory Anomalies y AI Recommendations. Cada tarjeta muestra título, evidencia, prioridad y acción recomendada.</p>
+    </div>
+    <div class="cs-section">
+      <h3><i>05</i> AI Inventory Analysis</h3>
+      <p>Detecta riesgo de agotamiento, stock excesivo, baja rotación, próximos vencimientos, productos agotados y alta demanda, cruzando stock actual, stock mínimo, ventas históricas, proveedor y categoría.</p>
+    </div>
+    <div class="cs-section">
+      <h3><i>06</i> AI Sales Analysis</h3>
+      <p>Ventas por día y periodo, mejor y peor jornada, productos líderes y rezagados, rendimiento por categoría, métodos de pago y usuarios que procesaron cada operación.</p>
+    </div>
+    <div class="cs-section">
+      <h3><i>07</i> AI Agent</h3>
+      <p>El agente no genera SQL ni consulta la base de datos directamente. Interpreta la intención, selecciona un plan de herramientas permitidas para el rol activo y compone la respuesta a partir de los resultados estructurados.</p>
+      <div class="cs-flow">USER → PHARMACORE AI → AI AGENT → TOOL LAYER → BUSINESS LOGIC → DATOS DE PHARMACORE</div>
+    </div>
+  </div>
+
+  <div class="cs-section">
+    <h3><i>08</i> Tool Architecture</h3>
+    <p>Cada herramienta declara permiso, parámetros validados, origen de datos y respuesta estructurada; el registro es la única puerta de entrada a la lógica de negocio, lo que permite exponerlo más adelante como herramientas MCP sin reescribir la capa.</p>
+    <div id="csToolList" style="margin-top:10px"></div>
+  </div>
+
+  <div class="cs-grid">
+    <div class="cs-section">
+      <h3><i>09</i> Security</h3>
+      <ul>
+        <li>Permisos verificados <strong>antes</strong> de ejecutar cada herramienta.</li>
+        <li>Versión 1 estrictamente de solo lectura: sin escrituras ni acciones irreversibles.</li>
+        <li>Validación de parámetros y rechazo de herramientas desconocidas.</li>
+        <li>La lógica de IA vive en el servidor; el frontend nunca recibe credenciales.</li>
+        <li>Sin diagnósticos ni recomendaciones clínicas: solo operación y negocio.</li>
+      </ul>
+    </div>
+    <div class="cs-section">
+      <h3><i>10</i> Future MCP Architecture</h3>
+      <p>PharmaCore AI <strong>aún no es</strong> un servidor MCP. El registro de herramientas está diseñado de forma modular para exponerse como tal en una fase posterior:</p>
+      <div class="cs-flow">PHARMACORE → AI AGENT → TOOLS → MCP → External AI Systems / Enterprise Agents</div>
+    </div>
+  </div>
+
+  <div class="cs-section">
+    <h3><i>11</i> Technology Stack</h3>
+    <div>
+      <span class="cs-tag">Node.js</span><span class="cs-tag">Express</span><span class="cs-tag">Tool-based AI agent</span>
+      <span class="cs-tag">HTML/CSS/JS</span><span class="cs-tag">Chart.js</span><span class="cs-tag">REST API</span>
+      <span class="cs-tag">Control de permisos por rol</span><span class="cs-tag">Modo Demo determinista</span>
+    </div>
+  </div>`;
+
+  fetch(`${AI_API}/tools?role=Administrador`).then(r=>r.json()).then(({tools})=>{
+    const host=document.getElementById('csToolList');
+    if(!host)return;
+    host.innerHTML=`<div class="air-table-wrap"><table class="air-table"><thead><tr><th>Tool</th><th>Propósito</th><th>Permiso</th><th>Origen de datos</th></tr></thead><tbody>
+      ${tools.map(t=>`<tr><td style="font-family:var(--mono)">${t.name}</td><td>${t.description}</td><td>${t.permission}</td><td>${t.source}</td></tr>`).join('')}
+    </tbody></table></div>`;
+  }).catch(()=>{});
+}
+
 // ===== MODAL UTILS =====
 function showModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
@@ -896,12 +1327,17 @@ function doLogin(){
   document.getElementById('sideUserAvatar').textContent=currentUser.avatar;
   document.getElementById('sideUserAvatar').style.background=currentUser.color;
   closeModal('loginModal');
+  // El alcance de la IA depende del rol activo: se recalcula la vista actual.
+  aiInsightsCache=null;
+  renderPage(currentPage);
+  updateAIBadge();
 }
 
 // ===== INIT =====
 updateLowBadge();
-renderPage('dashboard');
-document.getElementById('topAddBtn').style.display='flex';
+const initialPage=location.pathname.replace(/\/$/,'')==='/pharmacore-ai'?'casestudy':'dashboard';
+showPage(initialPage);
+updateAIBadge();
 </script>
 </body>
 </html>
