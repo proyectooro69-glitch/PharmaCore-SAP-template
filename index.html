@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PharmaCore SAP — Sistema Integral Farmacéutico</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="config.js" onerror="window.__PHARMACORE_CONFIG_MISSING__=true"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *{margin:0;padding:0;box-sizing:border-box;}
@@ -138,6 +140,7 @@
   .modal-title{font-size:17px;font-weight:700;margin-bottom:20px;}
   .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
   .form-group{display:flex;flex-direction:column;gap:6px;}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
   .form-group label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
   .form-group input,.form-group select{padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:var(--font);color:var(--text);outline:none;background:#fff;}
   .form-group input:focus,.form-group select:focus{border-color:var(--acc);}
@@ -250,7 +253,7 @@
         <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
       </div>
       <div>
-        <div class="logo-text">PharmaCore</div>
+        <div class="logo-text" id="sidebarLogoText">PharmaCore</div>
         <div class="logo-sub">Sistema SAP Farmacéutico</div>
       </div>
     </div>
@@ -301,9 +304,17 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Usuarios
     </div>
+    <div class="nav-item" data-page="configuracion" onclick="showPage('configuracion')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Configuración
+    </div>
   </nav>
   <div class="nav-bottom">
     <div class="nav-time" id="clock">00:00:00</div>
+    <div class="nav-item" style="margin-top:8px;" onclick="signOutCurrentUser()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Cerrar sesión
+    </div>
   </div>
 </div>
 
@@ -315,7 +326,7 @@
       <span class="page-sub" id="pageDate"></span>
     </div>
     <div class="topbar-right">
-      <button class="topbar-btn" onclick="showModal('loginModal')">👤 Cambiar Usuario</button>
+      <button class="topbar-btn" onclick="showModal('loginModal')">👤 Cambiar de Cuenta</button>
       <button class="topbar-btn primary" id="topAddBtn" onclick="topAddAction()">+ Nuevo Producto</button>
     </div>
   </div>
@@ -359,22 +370,56 @@
   </div>
 </div>
 
+<!-- MODAL NUEVO USUARIO (solo Administrador — vía Netlify Function) -->
+<div class="modal-bg" id="userModal">
+  <div class="modal" style="width:400px;">
+    <div class="modal-title">Nuevo Usuario</div>
+    <div class="form-group" style="margin-bottom:14px;"><label>Nombre completo</label><input id="nu_name" placeholder="Ej: Juana Pérez"></div>
+    <div class="form-group" style="margin-bottom:14px;"><label>Email</label><input id="nu_email" type="email" placeholder="juana@farmacia.com"></div>
+    <div class="form-group" style="margin-bottom:14px;"><label>Contraseña temporal</label><input id="nu_password" type="password" placeholder="Mínimo 8 caracteres"></div>
+    <div class="form-group" style="margin-bottom:0;"><label>Rol</label>
+      <select id="nu_role">
+        <option value="Farmacéutico Senior">Farmacéutico Senior</option>
+        <option value="Cajero">Cajero(a)</option>
+        <option value="Auxiliar">Auxiliar de Farmacia</option>
+        <option value="Administrador">Administrador</option>
+      </select>
+    </div>
+    <div id="userModalError" style="color:#C00000;font-size:12px;margin-top:10px;display:none;"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('userModal')">Cancelar</button>
+      <button class="btn-save" id="userModalSaveBtn" onclick="createNewUser()">Crear Usuario</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL LOGIN -->
 <div class="modal-bg" id="loginModal">
   <div class="modal" style="width:360px;">
-    <div class="modal-title">Cambiar Sesión</div>
-    <div class="form-group" style="margin-bottom:14px;"><label>Usuario</label>
-      <select id="loginUser">
-        <option value="0">Admin General</option>
-        <option value="1">Farmacéutico Senior</option>
-        <option value="2">Cajero(a)</option>
-        <option value="3">Auxiliar de Farmacia</option>
-      </select>
-    </div>
-    <div class="form-group" style="margin-bottom:0;"><label>PIN</label><input type="password" placeholder="••••" id="loginPin"></div>
+    <div class="modal-title">Cambiar de cuenta</div>
+    <div class="form-group" style="margin-bottom:14px;"><label>Email</label><input type="email" id="loginEmail" placeholder="tu@email.com"></div>
+    <div class="form-group" style="margin-bottom:0;"><label>Contraseña</label><input type="password" id="loginPassword" placeholder="••••••••"></div>
+    <div id="loginError" style="color:#C00000;font-size:12px;margin-top:8px;display:none;"></div>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('loginModal')">Cancelar</button>
       <button class="btn-save" onclick="doLogin()">Ingresar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Auth Gate: pantalla completa mostrada mientras no haya sesión de Supabase Auth -->
+<div id="authGate" style="position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;">
+  <div style="width:360px;max-width:90vw;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;">
+    <div style="text-align:center;margin-bottom:22px;">
+      <div style="font-size:20px;font-weight:800;color:var(--nav);" id="authGateAppName">PharmaCore</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px;">Inicia sesión para continuar</div>
+    </div>
+    <div class="form-group" style="margin-bottom:14px;"><label>Email</label><input type="email" id="authEmail" placeholder="tu@email.com"></div>
+    <div class="form-group" style="margin-bottom:0;"><label>Contraseña</label><input type="password" id="authPassword" placeholder="••••••••" onkeydown="if(event.key==='Enter')doAuthGateLogin();"></div>
+    <div id="authGateError" style="color:#C00000;font-size:12px;margin-top:10px;display:none;"></div>
+    <button class="btn-save" style="width:100%;margin-top:18px;padding:11px;" onclick="doAuthGateLogin()">Ingresar</button>
+    <div id="authGateConfigWarning" style="display:none;color:#B8860B;font-size:11px;margin-top:14px;line-height:1.5;">
+      ⚠️ Falta configurar <code>config.js</code> con los datos del proyecto Supabase de esta instalación (ver <code>config.example.js</code>).
     </div>
   </div>
 </div>
@@ -438,7 +483,7 @@ const ROLE_PERMISSIONS={
 };
 const PAGE_PERMS={
   dashboard:'dashboard', ventas:'sales', inventario:'inventory_read',
-  historial:'sales_history', analisis:'analysis', usuarios:'all', ai:'ai',
+  historial:'sales_history', analisis:'analysis', usuarios:'all', ai:'ai', configuracion:'all',
 };
 function hasPermission(role,resource){
   const perms=ROLE_PERMISSIONS[role]||[];
@@ -476,9 +521,9 @@ function showPage(page){
   document.querySelectorAll('.nav-item').forEach(el=>{el.classList.remove('active');});
   const activeEl=document.querySelector('.nav-item[data-page="'+page+'"]');
   if(activeEl)activeEl.classList.add('active');
-  const titles={dashboard:'Dashboard',ventas:'Punto de Venta',inventario:'Gestión de Inventario',historial:'Historial de Ventas',analisis:'Análisis de Datos',usuarios:'Gestión de Usuarios',ai:'PharmaCore AI',casestudy:'Case Study'};
+  const titles={dashboard:'Dashboard',ventas:'Punto de Venta',inventario:'Gestión de Inventario',historial:'Historial de Ventas',analisis:'Análisis de Datos',usuarios:'Gestión de Usuarios',ai:'PharmaCore AI',casestudy:'Case Study',configuracion:'Configuración de Farmacia'};
   document.getElementById('pageTitle').textContent=titles[page]||page;
-  const addBtns={dashboard:'+ Actualizar',ventas:'',inventario:'+ Nuevo Producto',historial:'',analisis:'',usuarios:'+ Nuevo Usuario',ai:'',casestudy:''};
+  const addBtns={dashboard:'+ Actualizar',ventas:'',inventario:'+ Nuevo Producto',historial:'',analisis:'',usuarios:'+ Nuevo Usuario',ai:'',casestudy:'',configuracion:''};
   const btn=document.getElementById('topAddBtn');
   const canAddProduct=page==='inventario'&&hasPermission(currentUser.role,'inventory');
   btn.textContent=addBtns[page]||'';
@@ -490,7 +535,67 @@ function showPage(page){
 
 function topAddAction(){
   if(currentPage==='inventario')showModal('productModal');
+  else if(currentPage==='usuarios')openNewUserModal();
   else if(currentPage==='dashboard')showPage('dashboard');
+}
+function openNewUserModal(){
+  if(!hasPermission(currentUser.role,'all')){alert('Solo un Administrador puede crear usuarios.');return;}
+  document.getElementById('nu_name').value='';
+  document.getElementById('nu_email').value='';
+  document.getElementById('nu_password').value='';
+  document.getElementById('nu_role').value='Farmacéutico Senior';
+  document.getElementById('userModalError').style.display='none';
+  showModal('userModal');
+}
+async function createNewUser(){
+  const errEl=document.getElementById('userModalError');
+  errEl.style.display='none';
+  // Defensa en cliente (además de la que ya hace la Netlify Function server-side,
+  // que es la que realmente importa: un Cajero llamando la función directo también es rechazado).
+  if(!hasPermission(currentUser.role,'all')){
+    errEl.textContent='Solo un Administrador puede crear usuarios.'; errEl.style.display='block'; return;
+  }
+  const fullName=document.getElementById('nu_name').value.trim();
+  const email=document.getElementById('nu_email').value.trim();
+  const password=document.getElementById('nu_password').value;
+  const role=document.getElementById('nu_role').value;
+  if(!fullName||!email||!password){
+    errEl.textContent='Completa nombre, email y contraseña.'; errEl.style.display='block'; return;
+  }
+  if(password.length<8){
+    errEl.textContent='La contraseña debe tener al menos 8 caracteres.'; errEl.style.display='block'; return;
+  }
+  if(!supabaseClient){
+    errEl.textContent='Supabase no está configurado todavía.'; errEl.style.display='block'; return;
+  }
+  const btn=document.getElementById('userModalSaveBtn');
+  btn.disabled=true; btn.textContent='Creando...';
+  try{
+    const {data:{session}}=await supabaseClient.auth.getSession();
+    if(!session){errEl.textContent='Tu sesión expiró, vuelve a iniciar sesión.'; errEl.style.display='block'; return;}
+    const res=await fetch('/.netlify/functions/create-user',{
+      method:'POST',
+      headers:{'Authorization':`Bearer ${session.access_token}`,'Content-Type':'application/json'},
+      body:JSON.stringify({email,password,fullName,role}),
+    });
+    const result=await res.json();
+    if(!res.ok){
+      errEl.textContent=result.error||'No se pudo crear el usuario.'; errEl.style.display='block'; return;
+    }
+    closeModal('userModal');
+    // Reflejar el nuevo usuario de inmediato sin esperar un recargo completo
+    const permsLabel={'Administrador':'Total','Farmacéutico Senior':'Ventas+Inv','Cajero':'Solo Ventas','Auxiliar':'Consulta'};
+    users.push({
+      id:result.userId, name:fullName, role,
+      color:'#00C48C', avatar:fullName.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(),
+      active:true, since:new Date().toISOString().slice(0,10), sales:0, perms:permsLabel[role]||role,
+    });
+    renderUsuarios();
+  }catch(e){
+    errEl.textContent='Error de red al crear el usuario: '+e.message; errEl.style.display='block';
+  }finally{
+    btn.disabled=false; btn.textContent='Crear Usuario';
+  }
 }
 
 // ===== CLOCK =====
@@ -504,7 +609,7 @@ setInterval(updateClock,1000);updateClock();
 // ===== RENDER PAGES =====
 function renderPage(page){
   const c=document.getElementById('content');
-  const fns={dashboard:renderDashboard,ventas:renderVentas,inventario:renderInventario,historial:renderHistorial,analisis:renderAnalisis,usuarios:renderUsuarios,ai:renderAI,casestudy:renderCaseStudy};
+  const fns={dashboard:renderDashboard,ventas:renderVentas,inventario:renderInventario,historial:renderHistorial,analisis:renderAnalisis,usuarios:renderUsuarios,ai:renderAI,casestudy:renderCaseStudy,configuracion:renderConfiguracion};
   c.innerHTML='';
   if(fns[page])fns[page]();
 }
@@ -528,7 +633,7 @@ function renderDashboard(){
     <div class="kpi-card">
       <div class="kpi-icon" style="background:#DCFCE7;float:right;"><svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
       <div class="kpi-label">Ventas del Día</div>
-      <div class="kpi-value">Bs ${totalDay.toLocaleString()}</div>
+      <div class="kpi-value">${appConfig.currency_symbol} ${totalDay.toLocaleString()}</div>
       <div class="kpi-delta up">↑ ${todaySales.length} transacciones hoy</div>
     </div>
     <div class="kpi-card">
@@ -584,7 +689,7 @@ function renderDashboard(){
           <td style="font-family:var(--mono);font-size:12px">${s.id}</td>
           <td>${s.time}</td>
           <td>${s.user.split(' ')[0]}</td>
-          <td style="font-weight:700;font-family:var(--mono)">Bs ${s.total}</td>
+          <td style="font-weight:700;font-family:var(--mono)">${appConfig.currency_symbol} ${s.total}</td>
           <td><span class="badge badge-ok">${s.method}</span></td>
         </tr>`).join('')}
       </table>
@@ -681,7 +786,7 @@ function filterInv(){
       <td style="color:var(--muted)">${p.lab}</td>
       <td><span class="badge ${catB}">${p.cat}</span></td>
       <td style="font-size:12px">${p.pres}</td>
-      <td style="font-family:var(--mono);font-weight:700">Bs ${p.price}</td>
+      <td style="font-family:var(--mono);font-weight:700">${appConfig.currency_symbol} ${p.price}</td>
       <td style="font-family:var(--mono);font-weight:700;color:${p.stock<=p.min?'var(--red)':'var(--text)'}">${p.stock}</td>
       <td style="font-size:12px">${p.exp}</td>
       <td>${st}</td>
@@ -719,7 +824,7 @@ function renderVentas(){
       <div class="cart-items" id="cartItems"></div>
       <div class="pos-footer">
         <div class="totals-row"><span>Subtotal</span><span id="cartSubtotal">Bs 0.00</span></div>
-        <div class="totals-row"><span>IVA (16%)</span><span id="cartIva">Bs 0.00</span></div>
+        <div class="totals-row"><span id="cartIvaLabel">IVA (16%)</span><span id="cartIva">Bs 0.00</span></div>
         <div class="totals-total"><span>TOTAL</span><span id="cartTotal">Bs 0.00</span></div>
         <div style="margin:10px 0 6px;">
           <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px;">Método de Pago</label>
@@ -727,7 +832,7 @@ function renderVentas(){
             <option>Efectivo</option><option>Tarjeta</option><option>Transferencia</option>
           </select>
         </div>
-        <button class="btn-checkout" onclick="checkout()">✓ Procesar Venta</button>
+        <button class="btn-checkout" id="checkoutBtn" onclick="checkout()">✓ Procesar Venta</button>
         <button class="btn-clear" onclick="resetCart()">Limpiar Carrito</button>
       </div>
     </div>
@@ -761,7 +866,7 @@ function renderPosGrid(){
       <div style="font-size:10px;font-weight:700;color:${catC};margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">${p.cat}</div>
       <div class="prod-card-name">${p.name}</div>
       <div class="prod-card-lab">${p.lab} · ${p.pres}</div>
-      <div class="prod-card-price">Bs ${p.price}</div>
+      <div class="prod-card-price">${appConfig.currency_symbol} ${p.price}</div>
       <div class="prod-card-stock">Stock: ${p.stock} unid.</div>
     </div>`;
   }).join('');
@@ -801,41 +906,99 @@ function renderCart(){
         <span class="qty-num">${item.qty}</span>
         <button class="qty-btn" onclick="changeQty('${item.id}',1)">+</button>
       </div>
-      <span class="cart-price">Bs ${(item.price*item.qty).toFixed(2)}</span>
+      <span class="cart-price">${appConfig.currency_symbol} ${(item.price*item.qty).toFixed(2)}</span>
       <span class="cart-del" onclick="removeCart('${item.id}')">×</span>
     </div>`).join('');
   updateTotals();
 }
 function updateTotals(){
   const sub=cart.reduce((a,x)=>a+x.price*x.qty,0);
-  const iva=sub*0.16;
-  document.getElementById('cartSubtotal').textContent=`Bs ${sub.toFixed(2)}`;
-  document.getElementById('cartIva').textContent=`Bs ${iva.toFixed(2)}`;
-  document.getElementById('cartTotal').textContent=`Bs ${(sub+iva).toFixed(2)}`;
+  const iva=sub*(appConfig.tax_rate??0.16);
+  document.getElementById('cartIvaLabel').textContent=`${appConfig.tax_name||'IVA'} (${Math.round((appConfig.tax_rate??0.16)*100)}%)`;
+  document.getElementById('cartSubtotal').textContent=`${appConfig.currency_symbol} ${sub.toFixed(2)}`;
+  document.getElementById('cartIva').textContent=`${appConfig.currency_symbol} ${iva.toFixed(2)}`;
+  document.getElementById('cartTotal').textContent=`${appConfig.currency_symbol} ${(sub+iva).toFixed(2)}`;
 }
-function checkout(){
+async function checkout(){
   if(cart.length===0){alert('El carrito está vacío');return;}
   const method=document.getElementById('payMethod').value;
-  const sub=cart.reduce((a,x)=>a+x.price*x.qty,0);
-  const total=sub*1.16;
-  const id=`VT-${String(saleCounter++).padStart(4,'0')}`;
+  const btn=document.getElementById('checkoutBtn');
+  if(btn){btn.disabled=true;btn.textContent='Procesando...';}
+
+  try{
+    if(usingSupabaseProducts && supabaseClient){
+      // ---- Camino real: process_sale (transaccional, con FOR UPDATE en el servidor) ----
+      const items=cart.map(x=>{
+        const p=products.find(pp=>pp.id===x.id);
+        return {product_id:p?p._uuid:null, quantity:x.qty};
+      });
+      if(items.some(it=>!it.product_id)){
+        alert('Uno de los productos del carrito no está sincronizado con Supabase. Recarga la página e intenta de nuevo.');
+        return;
+      }
+      const {data,error}=await supabaseClient.rpc('process_sale',{p_items:items,p_payment_method:method});
+      if(error){
+        // El servidor no escribió nada (la transacción completa se revierte ante cualquier error:
+        // stock insuficiente, producto no encontrado, rol no autorizado, etc).
+        alert('No se pudo procesar la venta: '+error.message);
+        return;
+      }
+      const result=Array.isArray(data)?data[0]:data;
+      const ticketCode=result.out_ticket_code, subtotal=Number(result.out_subtotal),
+            tax=Number(result.out_tax), total=Number(result.out_total);
+
+      // Reflejar el descuento de stock ya aplicado en el servidor, sin volver a descontarlo aquí.
+      cart.forEach(x=>{const p=products.find(pp=>pp.id===x.id);if(p)p.stock-=x.qty;});
+      updateLowBadge();
+
+      // Traer la venta recién creada tal como quedó en Supabase (fuente de verdad),
+      // en vez de reconstruirla a mano en el cliente.
+      const {data:savedSale}=await supabaseClient.from('sales')
+        .select('*, sale_items(*), profiles(full_name)').eq('ticket_code',ticketCode).single();
+      const sale={
+        id:ticketCode,
+        date:savedSale?savedSale.sale_date:new Date().toISOString().split('T')[0],
+        time:savedSale?savedSale.sale_time:new Date().toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'}),
+        user:currentUser.name,
+        items:cart.map(x=>({name:x.name,qty:x.qty,price:x.price})),
+        total, method,
+      };
+      allSales.unshift(sale);
+      showReceipt(sale, subtotal, tax, method, ticketCode);
+    }else{
+      // ---- Fallback local (Supabase no configurado todavía) ----
+      // Se mantiene únicamente para no romper la demo mientras se completa la migración.
+      // El bloqueo de sobreventa aquí es solo del lado del cliente (ver addToCart/changeQty);
+      // no tiene la garantía transaccional de process_sale.
+      const sub=cart.reduce((a,x)=>a+x.price*x.qty,0);
+      const tax=sub*appConfig.tax_rate;
+      const total=sub+tax;
+      const id=`VT-${String(saleCounter++).padStart(4,'0')}`;
+      const now=new Date();
+      const sale={id,date:now.toISOString().split('T')[0],time:now.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'}),user:currentUser.name,items:cart.map(x=>({name:x.name,qty:x.qty,price:x.price})),total:Math.round(total*100)/100,method};
+      allSales.unshift(sale);
+      cart.forEach(x=>{const p=products.find(pp=>pp.id===x.id);if(p)p.stock-=x.qty;});
+      updateLowBadge();
+      showReceipt(sale, sub, tax, method, id);
+    }
+  } finally {
+    if(btn){btn.disabled=false;btn.textContent='✓ Procesar Venta';}
+  }
+}
+function showReceipt(sale, subtotal, tax, method, ticketCode){
   const now=new Date();
-  const sale={id,date:now.toISOString().split('T')[0],time:now.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'}),user:currentUser.name,items:cart.map(x=>({name:x.name,qty:x.qty,price:x.price})),total:Math.round(total*100)/100,method};
-  allSales.unshift(sale);
-  cart.forEach(x=>{const p=products.find(pp=>pp.id===x.id);if(p)p.stock-=x.qty;});
-  updateLowBadge();
   const rcpt=`<div class="receipt">
     <div class="receipt-header">
       <div style="font-size:24px;margin-bottom:4px">💊</div>
-      <h2>PharmaCore SAP</h2>
-      <p>Recibo de Venta · ${id}</p>
+      <h2>${appConfig.pharmacy_name||'PharmaCore'}</h2>
+      <p>Recibo de Venta · ${ticketCode}</p>
       <p style="margin-top:4px">${now.toLocaleDateString('es')} ${now.toLocaleTimeString('es')}</p>
       <p>Atendido por: ${currentUser.name}</p>
     </div>
-    ${sale.items.map(it=>`<div class="receipt-item"><span>${it.name} ×${it.qty}</span><span style="font-family:var(--mono)">Bs ${(it.price*it.qty).toFixed(2)}</span></div>`).join('')}
-    <div class="receipt-item"><span>Subtotal</span><span style="font-family:var(--mono)">Bs ${sub.toFixed(2)}</span></div>
-    <div class="receipt-item"><span>IVA 16%</span><span style="font-family:var(--mono)">Bs ${(sub*0.16).toFixed(2)}</span></div>
-    <div class="receipt-total"><span>TOTAL</span><span style="font-family:var(--mono);color:var(--acc2)">Bs ${sale.total.toFixed(2)}</span></div>
+    ${sale.items.map(it=>`<div class="receipt-item"><span>${it.name} ×${it.qty}</span><span style="font-family:var(--mono)">${appConfig.currency_symbol} ${(it.price*it.qty).toFixed(2)}</span></div>`).join('')}
+    <div class="receipt-item"><span>Subtotal</span><span style="font-family:var(--mono)">${appConfig.currency_symbol} ${subtotal.toFixed(2)}</span></div>
+    <div class="receipt-item"><span>${appConfig.tax_name||'IVA'} ${Math.round((appConfig.tax_rate||0)*100)}%</span><span style="font-family:var(--mono)">${appConfig.currency_symbol} ${tax.toFixed(2)}</span></div>
+    <div class="receipt-total"><span>TOTAL</span><span style="font-family:var(--mono);color:var(--acc2)">${appConfig.currency_symbol} ${sale.total.toFixed(2)}</span></div>
     <div style="text-align:center;margin-top:16px;font-size:12px;color:var(--muted)">Método: ${method} · ¡Gracias por su compra!</div>
   </div>`;
   document.getElementById('receiptContent').innerHTML=rcpt;
@@ -851,7 +1014,7 @@ function renderHistorial(){
   c.innerHTML=`
   <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
     <div class="kpi-card"><div class="kpi-label">Total Ventas</div><div class="kpi-value">${allSales.length}</div><div class="kpi-delta" style="color:var(--muted)">transacciones registradas</div></div>
-    <div class="kpi-card"><div class="kpi-label">Ingresos Totales</div><div class="kpi-value">Bs ${total.toLocaleString()}</div><div class="kpi-delta up">↑ promedio Bs ${Math.round(total/allSales.length)} por venta</div></div>
+    <div class="kpi-card"><div class="kpi-label">Ingresos Totales</div><div class="kpi-value">${appConfig.currency_symbol} ${total.toLocaleString()}</div><div class="kpi-delta up">↑ promedio ${appConfig.currency_symbol} ${Math.round(total/allSales.length)} por venta</div></div>
     <div class="kpi-card"><div class="kpi-label">Con Controlados</div><div class="kpi-value">${ctrl}</div><div class="kpi-delta" style="color:var(--ctrl)">${ctrl} ventas con medicación controlada</div></div>
   </div>
   <div class="full-card" style="padding:0;overflow:hidden;">
@@ -868,7 +1031,7 @@ function renderHistorial(){
         <td style="font-family:var(--mono)">${s.time}</td>
         <td>${s.user}</td>
         <td style="font-size:12px;color:var(--muted)">${s.items.map(i=>`${i.name} ×${i.qty}`).join(', ')}</td>
-        <td style="font-weight:700;font-family:var(--mono);color:var(--acc2)">Bs ${s.total.toFixed(2)}</td>
+        <td style="font-weight:700;font-family:var(--mono);color:var(--acc2)">${appConfig.currency_symbol} ${s.total.toFixed(2)}</td>
         <td><span class="badge badge-ok">${s.method}</span></td>
       </tr>`).join('')}
     </table>
@@ -886,10 +1049,10 @@ function renderAnalisis(){
   const topProd=[...products].sort((a,b)=>b.sold-a.sold).slice(0,6);
   c.innerHTML=`
   <div class="kpi-grid">
-    <div class="kpi-card"><div class="kpi-label">Ingresos Libre Venta</div><div class="kpi-value">Bs ${(catSales.Libre||0).toFixed(0)}</div><div class="kpi-delta up">↑ mayor categoría</div></div>
-    <div class="kpi-card"><div class="kpi-label">Ingresos Controlados</div><div class="kpi-value">Bs ${(catSales.Controlado||0).toFixed(0)}</div><div class="kpi-delta" style="color:var(--ctrl)">requiere registro</div></div>
-    <div class="kpi-card"><div class="kpi-label">Ingresos Naturales</div><div class="kpi-value">Bs ${(catSales.Natural||0).toFixed(0)}</div><div class="kpi-delta" style="color:var(--nat)">segmento creciente</div></div>
-    <div class="kpi-card"><div class="kpi-label">Ticket Promedio</div><div class="kpi-value">Bs ${allSales.length?Math.round(allSales.reduce((a,s)=>a+s.total,0)/allSales.length):0}</div><div class="kpi-delta" style="color:var(--muted)">por transacción</div></div>
+    <div class="kpi-card"><div class="kpi-label">Ingresos Libre Venta</div><div class="kpi-value">${appConfig.currency_symbol} ${(catSales.Libre||0).toFixed(0)}</div><div class="kpi-delta up">↑ mayor categoría</div></div>
+    <div class="kpi-card"><div class="kpi-label">Ingresos Controlados</div><div class="kpi-value">${appConfig.currency_symbol} ${(catSales.Controlado||0).toFixed(0)}</div><div class="kpi-delta" style="color:var(--ctrl)">requiere registro</div></div>
+    <div class="kpi-card"><div class="kpi-label">Ingresos Naturales</div><div class="kpi-value">${appConfig.currency_symbol} ${(catSales.Natural||0).toFixed(0)}</div><div class="kpi-delta" style="color:var(--nat)">segmento creciente</div></div>
+    <div class="kpi-card"><div class="kpi-label">Ticket Promedio</div><div class="kpi-value">${appConfig.currency_symbol} ${allSales.length?Math.round(allSales.reduce((a,s)=>a+s.total,0)/allSales.length):0}</div><div class="kpi-delta" style="color:var(--muted)">por transacción</div></div>
   </div>
   <div class="section-row">
     <div class="card">
@@ -958,7 +1121,7 @@ function renderUsuarios(){
         <td style="font-family:var(--mono);font-weight:600">${u.sales}</td>
         <td><span class="badge ${u.perms==='Total'?'badge-ok':u.perms.includes('Inv')?'badge-lib':'badge-low'}">${u.perms}</span></td>
         <td>
-          <button onclick="toggleUser(${u.id})" style="background:none;border:none;cursor:pointer;color:${u.active?'var(--red)':'var(--acc2)'};font-size:12px;font-weight:600;font-family:var(--font)">${u.active?'Desactivar':'Activar'}</button>
+          <button onclick="toggleUser('${u.id}')" style="background:none;border:none;cursor:pointer;color:${u.active?'var(--red)':'var(--acc2)'};font-size:12px;font-weight:600;font-family:var(--font)">${u.active?'Desactivar':'Activar'}</button>
         </td>
       </tr>`).join('')}
     </table>
@@ -1050,7 +1213,7 @@ function detect_anomalies(products,sales){
   products.filter(p=>p.stock===0&&p.sold>50).forEach(p=>anomalies.push({type:'STOCKOUT_HIGH_DEMAND',severity:'CRÍTICO',product:p.name,description:`${p.name} está agotado a pesar de tener ventas históricas de ${p.sold} unidades. Pérdida de ventas activa.`,evidence:`Stock: 0 | Ventas históricas: ${p.sold}`}));
   const catSales={};sales.forEach(s=>s.items.forEach(it=>{const p=products.find(pp=>pp.name===it.name);if(p)catSales[p.cat]=(catSales[p.cat]||0)+it.price*it.qty;}));
   const totalRev=Object.values(catSales).reduce((a,v)=>a+v,0);
-  Object.entries(catSales).forEach(([cat,rev])=>{const share=totalRev>0?(rev/totalRev)*100:0;if(share>70)anomalies.push({type:'REVENUE_CONCENTRATION',severity:'MEDIO',description:`La categoría "${cat}" concentra el ${Math.round(share)}% de los ingresos. Posible dependencia excesiva de una sola categoría.`,evidence:`Ingresos ${cat}: Bs ${Math.round(rev)} de Bs ${Math.round(totalRev)} totales`});});
+  Object.entries(catSales).forEach(([cat,rev])=>{const share=totalRev>0?(rev/totalRev)*100:0;if(share>70)anomalies.push({type:'REVENUE_CONCENTRATION',severity:'MEDIO',description:`La categoría "${cat}" concentra el ${Math.round(share)}% de los ingresos. Posible dependencia excesiva de una sola categoría.`,evidence:`Ingresos ${cat}: ${appConfig.currency_symbol} ${Math.round(rev)} de ${appConfig.currency_symbol} ${Math.round(totalRev)} totales`});});
   return{tool:'detect_anomalies',anomalies,count:anomalies.length};
 }
 function get_sales_by_period(sales){
@@ -1130,7 +1293,7 @@ function generateTopProductsResponse(data){
   const{products}=data;
   let html=tag('source','Basado en las <strong>ventas históricas acumuladas</strong> de todos los productos registrados en PharmaCore.');
   html+=tag('finding',`Los <strong>${products.length} productos más vendidos</strong> concentran la mayor parte del volumen de unidades despachadas.`);
-  html+=tag('data',productTable(products,[{key:'id',label:'Código'},{key:'name',label:'Producto'},{key:'cat',label:'Categoría'},{key:'sold',label:'Unidades Vendidas'},{key:'stock',label:'Stock Actual'},{key:'price',label:'Precio Bs',format:p=>`Bs ${p.price}`}]));
+  html+=tag('data',productTable(products,[{key:'id',label:'Código'},{key:'name',label:'Producto'},{key:'cat',label:'Categoría'},{key:'sold',label:'Unidades Vendidas'},{key:'stock',label:'Stock Actual'},{key:'price',label:'Precio',format:p=>`${appConfig.currency_symbol} ${p.price}`}]));
   const atRisk=products.filter(p=>p.stock<=p.min);
   if(atRisk.length>0)html+=tag('warning',`<strong>Atención:</strong> ${atRisk.map(p=>p.name).join(', ')} figuran entre los más vendidos pero tienen stock bajo o agotado.`);
   html+=tag('analysis',`<strong>${products[0].name}</strong> lidera con ${products[0].sold} unidades. Su disponibilidad de stock (${products[0].stock} unid.) debe monitorearse activamente.`);
@@ -1141,7 +1304,7 @@ function generateLowMovementResponse(data){
   if(count===0)return{html:tag('success','No se detectaron productos con bajo movimiento significativo.'),intent:'low_movement'};
   let html=tag('source','Basado en las <strong>ventas históricas acumuladas</strong> de productos con stock disponible en PharmaCore.');
   html+=tag('finding',`Detecté <strong>${count} producto${count!==1?'s':''} con bajo movimiento</strong> (menos de 50 unidades vendidas históricamente).`);
-  html+=tag('data',productTable(products,[{key:'name',label:'Producto'},{key:'cat',label:'Categoría'},{key:'sold',label:'Unid. Vendidas'},{key:'stock',label:'Stock'},{key:'price',label:'Precio',format:p=>`Bs ${p.price}`},{key:'exp',label:'Vencimiento'}]));
+  html+=tag('data',productTable(products,[{key:'name',label:'Producto'},{key:'cat',label:'Categoría'},{key:'sold',label:'Unid. Vendidas'},{key:'stock',label:'Stock'},{key:'price',label:'Precio',format:p=>`${appConfig.currency_symbol} ${p.price}`},{key:'exp',label:'Vencimiento'}]));
   html+=tag('analysis','Los productos con bajo movimiento y stock elevado representan capital inmovilizado. Revisar si son estacionales, si están correctamente ubicados en el punto de venta o si requieren ajuste de estrategia.');
   html+=tag('recommendation','Evaluar acciones de rotación: reubicación, promociones o revisión de términos con proveedores para devolución de stock sin movimiento.');
   return{html,intent:'low_movement'};
@@ -1150,27 +1313,27 @@ function generateSalesResponse(data){
   const{count,total,average,byMethod,recentSales}=data;
   if(count===0)return{html:tag('info','No hay suficientes datos en PharmaCore para realizar este análisis de ventas.'),intent:'sales'};
   let html=tag('source',`Basado en las <strong>${count} ventas registradas</strong> en el historial de PharmaCore.`);
-  html+=tag('data',`<strong>Resumen de ventas:</strong><ul style="margin:8px 0 0 16px;line-height:1.8"><li>Total de transacciones: <strong>${count}</strong></li><li>Ingresos totales: <strong>Bs ${total.toLocaleString()}</strong></li><li>Ticket promedio: <strong>Bs ${average}</strong></li><li>Métodos de pago: ${Object.entries(byMethod).map(([m,c])=>`${m} (${c})`).join(', ')}</li></ul>`);
-  if(recentSales&&recentSales.length>0)html+=tag('data',`<strong>Últimas transacciones:</strong><br>${productTable(recentSales,[{key:'id',label:'ID'},{key:'date',label:'Fecha'},{key:'user',label:'Usuario'},{key:'total',label:'Total',format:s=>`Bs ${s.total.toFixed(2)}`},{key:'method',label:'Método'}])}`);
-  html+=tag('analysis',`Con un ticket promedio de Bs ${average} por venta, el flujo de caja muestra ${count>=5?'actividad regular':'actividad limitada en el registro'}.`);
+  html+=tag('data',`<strong>Resumen de ventas:</strong><ul style="margin:8px 0 0 16px;line-height:1.8"><li>Total de transacciones: <strong>${count}</strong></li><li>Ingresos totales: <strong>${appConfig.currency_symbol} ${total.toLocaleString()}</strong></li><li>Ticket promedio: <strong>${appConfig.currency_symbol} ${average}</strong></li><li>Métodos de pago: ${Object.entries(byMethod).map(([m,c])=>`${m} (${c})`).join(', ')}</li></ul>`);
+  if(recentSales&&recentSales.length>0)html+=tag('data',`<strong>Últimas transacciones:</strong><br>${productTable(recentSales,[{key:'id',label:'ID'},{key:'date',label:'Fecha'},{key:'user',label:'Usuario'},{key:'total',label:'Total',format:s=>`${appConfig.currency_symbol} ${s.total.toFixed(2)}`},{key:'method',label:'Método'}])}`);
+  html+=tag('analysis',`Con un ticket promedio de ${appConfig.currency_symbol} ${average} por venta, el flujo de caja muestra ${count>=5?'actividad regular':'actividad limitada en el registro'}.`);
   return{html,intent:'sales'};
 }
 function generateSalesPeriodResponse(data){
   const{byDate,bestDay,days}=data;
   if(days===0)return{html:tag('info','No hay suficientes datos en PharmaCore para analizar el comportamiento por período.'),intent:'sales_period'};
   let html=tag('source',`Basado en las <strong>ventas por fecha</strong> registradas en PharmaCore (${days} día${days!==1?'s':''} con actividad).`);
-  html+=tag('finding',`El <strong>mejor día</strong> fue <strong>${bestDay.date}</strong> con <strong>Bs ${bestDay.total}</strong> en ventas.`);
+  html+=tag('finding',`El <strong>mejor día</strong> fue <strong>${bestDay.date}</strong> con <strong>${appConfig.currency_symbol} ${bestDay.total}</strong> en ventas.`);
   const tableData=Object.entries(byDate).map(([date,total])=>({date,total}));
-  html+=tag('data',productTable(tableData,[{key:'date',label:'Fecha'},{key:'total',label:'Ingresos',format:r=>`Bs ${r.total.toFixed(2)}`}]));
+  html+=tag('data',productTable(tableData,[{key:'date',label:'Fecha'},{key:'total',label:'Ingresos',format:r=>`${appConfig.currency_symbol} ${r.total.toFixed(2)}`}]));
   html+=tag('analysis',`Con ${days} días de datos disponibles, ${days<7?'el período de análisis es limitado para determinar tendencias definitivas':'se puede observar la evolución temporal de ventas'}.`);
   return{html,intent:'sales_period'};
 }
 function generateCategoryResponse(data){
   const{categories,totalRevenue}=data;
   let html=tag('source','Basado en el <strong>cruce de ventas e inventario por categoría</strong> registrados en PharmaCore.');
-  html+=tag('data',productTable(categories,[{key:'name',label:'Categoría'},{key:'products',label:'Productos'},{key:'revenue',label:'Ingresos',format:c=>`Bs ${c.revenue.toLocaleString()}`},{key:'unitsSold',label:'Unidades'},{key:'share',label:'Participación',format:c=>`${c.share}%`},{key:'stock',label:'Stock Total'}]));
+  html+=tag('data',productTable(categories,[{key:'name',label:'Categoría'},{key:'products',label:'Productos'},{key:'revenue',label:'Ingresos',format:c=>`${appConfig.currency_symbol} ${c.revenue.toLocaleString()}`},{key:'unitsSold',label:'Unidades'},{key:'share',label:'Participación',format:c=>`${c.share}%`},{key:'stock',label:'Stock Total'}]));
   const top=categories[0];
-  html+=tag('analysis',`<strong>${top.name}</strong> es la categoría con mayor generación de ingresos (${top.share}% del total, Bs ${top.revenue.toLocaleString()}). Total de ingresos registrados: Bs ${totalRevenue.toLocaleString()}.`);
+  html+=tag('analysis',`<strong>${top.name}</strong> es la categoría con mayor generación de ingresos (${top.share}% del total, ${appConfig.currency_symbol} ${top.revenue.toLocaleString()}). Total de ingresos registrados: ${appConfig.currency_symbol} ${totalRevenue.toLocaleString()}.`);
   html+=tag('recommendation','Monitorear la concentración de ingresos por categoría para evitar dependencia excesiva. Evaluar estrategias de diversificación si una categoría supera el 70% de ingresos.');
   return{html,intent:'category'};
 }
@@ -1178,14 +1341,14 @@ function generatePaymentResponse(data){
   const{methods}=data;
   if(!methods.length)return{html:tag('info','No hay suficientes datos en PharmaCore para analizar métodos de pago.'),intent:'payment'};
   let html=tag('source','Basado en el <strong>método de pago registrado</strong> en cada venta en PharmaCore.');
-  html+=tag('data',productTable(methods,[{key:'method',label:'Método'},{key:'count',label:'Transacciones'},{key:'share',label:'Participación',format:m=>`${m.share}%`},{key:'revenue',label:'Ingresos',format:m=>`Bs ${m.revenue.toFixed(2)}`}]));
+  html+=tag('data',productTable(methods,[{key:'method',label:'Método'},{key:'count',label:'Transacciones'},{key:'share',label:'Participación',format:m=>`${m.share}%`},{key:'revenue',label:'Ingresos',format:m=>`${appConfig.currency_symbol} ${m.revenue.toFixed(2)}`}]));
   html+=tag('analysis',`El método más utilizado es <strong>${methods[0].method}</strong> con ${methods[0].share}% de las transacciones.`);
   return{html,intent:'payment'};
 }
 function generateInventoryResponse(data){
   const{total,totalUnits,totalValue,outOfStock,lowStock,healthy,byCategory}=data;
   let html=tag('source',`Basado en el <strong>inventario actual</strong> de ${total} productos registrados en PharmaCore.`);
-  html+=tag('data',`<strong>Estado general del inventario:</strong><ul style="margin:8px 0 0 16px;line-height:1.8"><li>Total de productos: <strong>${total}</strong></li><li>Unidades en stock: <strong>${totalUnits.toLocaleString()}</strong></li><li>Valor estimado: <strong>Bs ${totalValue.toLocaleString()}</strong></li><li>🟢 Con stock saludable: <strong>${healthy}</strong></li><li>🟡 Con stock bajo: <strong>${lowStock}</strong></li><li>🔴 Agotados: <strong>${outOfStock}</strong></li></ul>`);
+  html+=tag('data',`<strong>Estado general del inventario:</strong><ul style="margin:8px 0 0 16px;line-height:1.8"><li>Total de productos: <strong>${total}</strong></li><li>Unidades en stock: <strong>${totalUnits.toLocaleString()}</strong></li><li>Valor estimado: <strong>${appConfig.currency_symbol} ${totalValue.toLocaleString()}</strong></li><li>🟢 Con stock saludable: <strong>${healthy}</strong></li><li>🟡 Con stock bajo: <strong>${lowStock}</strong></li><li>🔴 Agotados: <strong>${outOfStock}</strong></li></ul>`);
   html+=tag('data',`<strong>Por categoría:</strong> Libre Venta: ${byCategory.Libre} productos | Controlados: ${byCategory.Controlado} productos | Naturales: ${byCategory.Natural} productos`);
   if(outOfStock+lowStock>0)html+=tag('warning',`<strong>${outOfStock+lowStock} producto${outOfStock+lowStock!==1?'s':''}</strong> requieren atención de stock.`);
   return{html,intent:'inventory'};
@@ -1206,7 +1369,7 @@ function generateRecommendationsResponse(data){
   if(oos.length>0)recs.push({p:1,icon:'🔴',title:'Reposición urgente de productos agotados',what:`${oos.length} producto${oos.length!==1?'s':''} están completamente agotados`,why:'La venta de estos productos no es posible, generando pérdida directa de ingresos',evidence:oos.map(p=>`${p.name} (${p.sold} unid. hist.)`).join(', '),action:`Contactar a ${[...new Set(oos.map(p=>p.prov))].join(', ')} para reposición inmediata`});
   if(ls.length>0)recs.push({p:2,icon:'🟠',title:'Gestión preventiva de stock bajo',what:`${ls.length} producto${ls.length!==1?'s':''} están por debajo de su stock mínimo`,why:'Sin acción, se convertirán en agotados en corto plazo, especialmente los de alta demanda',evidence:ls.slice(0,3).map(p=>`${p.name}: ${p.stock}/${p.min}`).join(', '),action:'Iniciar proceso de compra con anticipación suficiente según tiempo de entrega del proveedor'});
   if(expirationData?.criticos?.length>0)recs.push({p:3,icon:'🟡',title:'Gestión de vencimientos próximos',what:`${expirationData.criticos.length} producto${expirationData.criticos.length!==1?'s':''} vencen en menos de 30 días`,why:'Los productos vencidos no pueden venderse y representan pérdida de inventario',evidence:expirationData.criticos.map(p=>`${p.name} (${p.daysLeft} días)`).join(', '),action:'Coordinar con proveedores para devolución o cambio. Farmacéutico debe validar cada caso'});
-  if(categoryData?.categories){const top=categoryData.categories[0];if(top&&top.share>60)recs.push({p:4,icon:'📊',title:'Diversificación de ingresos por categoría',what:`"${top.name}" concentra el ${top.share}% de los ingresos`,why:'Alta concentración genera dependencia y riesgo ante variaciones de demanda',evidence:`Bs ${top.revenue.toLocaleString()} de ${categoryData.totalRevenue.toLocaleString()} totales`,action:'Evaluar estrategias para potenciar categorías con menor participación'});}
+  if(categoryData?.categories){const top=categoryData.categories[0];if(top&&top.share>60)recs.push({p:4,icon:'📊',title:'Diversificación de ingresos por categoría',what:`"${top.name}" concentra el ${top.share}% de los ingresos`,why:'Alta concentración genera dependencia y riesgo ante variaciones de demanda',evidence:`${appConfig.currency_symbol} ${top.revenue.toLocaleString()} de ${categoryData.totalRevenue.toLocaleString()} totales`,action:'Evaluar estrategias para potenciar categorías con menor participación'});}
   recs.push({p:5,icon:'💡',title:'Monitoreo continuo de productos de alta rotación',what:'Los productos más vendidos requieren seguimiento frecuente',why:'Un producto top que se agota impacta directamente en satisfacción y ventas',evidence:topProducts?.products?.slice(0,3).map(p=>`${p.name}: ${p.sold} unid.`).join(', ')||'Ver análisis de top productos',action:'Establecer alertas de stock para los 5 productos más vendidos'});
   let html=tag('source','Basado en el <strong>análisis integral</strong> de inventario, ventas y vencimientos de PharmaCore.');
   html+=tag('finding',`Generé <strong>${recs.length} recomendaciones operativas</strong> ordenadas por prioridad.`);
@@ -1216,7 +1379,7 @@ function generateRecommendationsResponse(data){
 function generateBusinessOverviewResponse(data){
   const m=data.metrics,ls=data.lowStockData,exp=data.expirationData,cat=data.categoryData,lowMov=data.lowMovementData;
   let html=tag('source','<strong>RESUMEN EJECUTIVO</strong> — Análisis integral de PharmaCore basado en inventario, ventas y vencimientos registrados.');
-  html+=tag('data',`<strong>SITUACIÓN ACTUAL:</strong><ul style="margin:8px 0 0 16px;line-height:1.9"><li>Inventario: <strong>${m.totalProducts} productos</strong> — ${m.totalProducts-m.lowStock-m.outOfStock} saludables, ${m.lowStock} bajo mínimo, ${m.outOfStock} agotados</li><li>Ingresos del día: <strong>Bs ${m.todayRevenue.toLocaleString()}</strong> en ${m.todayTransactions} transacciones</li><li>Ingresos totales registrados: <strong>Bs ${m.totalRevenue.toLocaleString()}</strong> (${m.totalTransactions} ventas)</li><li>Categoría líder: <strong>${cat?.categories?.[0]?.name||'—'}</strong> (${cat?.categories?.[0]?.share||'—'}% de ingresos)</li><li>Vencimientos críticos: <strong>${exp?.criticos?.length||0} productos</strong> en ≤30 días</li></ul>`);
+  html+=tag('data',`<strong>SITUACIÓN ACTUAL:</strong><ul style="margin:8px 0 0 16px;line-height:1.9"><li>Inventario: <strong>${m.totalProducts} productos</strong> — ${m.totalProducts-m.lowStock-m.outOfStock} saludables, ${m.lowStock} bajo mínimo, ${m.outOfStock} agotados</li><li>Ingresos del día: <strong>${appConfig.currency_symbol} ${m.todayRevenue.toLocaleString()}</strong> en ${m.todayTransactions} transacciones</li><li>Ingresos totales registrados: <strong>${appConfig.currency_symbol} ${m.totalRevenue.toLocaleString()}</strong> (${m.totalTransactions} ventas)</li><li>Categoría líder: <strong>${cat?.categories?.[0]?.name||'—'}</strong> (${cat?.categories?.[0]?.share||'—'}% de ingresos)</li><li>Vencimientos críticos: <strong>${exp?.criticos?.length||0} productos</strong> en ≤30 días</li></ul>`);
   const risks=[];
   if(m.outOfStock>0)risks.push(`${m.outOfStock} producto${m.outOfStock!==1?'s':''} agotado${m.outOfStock!==1?'s':''} (pérdida de ventas activa)`);
   if(m.lowStock>0)risks.push(`${m.lowStock} producto${m.lowStock!==1?'s':''} bajo stock mínimo`);
@@ -1302,7 +1465,7 @@ function generateAIInsights(){
   const expired=expiring.filter(p=>p.daysLeft<=0);const critical30=expiring.filter(p=>p.daysLeft>0&&p.daysLeft<=30);
   insights.push({id:'expiration_risk',icon:expired.length>0?'🔴':critical30.length>0?'🟠':'🟢',title:'Expiration Risk',priority:expired.length>0?'ALTO':critical30.length>0?'MEDIO':'OK',summary:expired.length>0?`${expired.length} vencido${expired.length!==1?'s':''}`:critical30.length>0?`${critical30.length} vencen en ≤30 días`:'Vencimientos en orden',detail:`${expired.length} vencidos · ${critical30.length} críticos (≤30 días)`,recommendation:expired.length>0?`Gestionar inmediatamente: ${expired.slice(0,2).map(p=>p.name).join(', ')}`:critical30.length>0?'Coordinar devolución o sustitución':'Sin alertas de vencimiento inmediatas'});
   const totalRev=allSales.reduce((a,s)=>a+s.total,0);const avgTicket=allSales.length?Math.round(totalRev/allSales.length):0;
-  insights.push({id:'sales_trend',icon:'📈',title:'Sales Trend',priority:allSales.length>5?'OK':'INFO',summary:`Bs ${totalRev.toLocaleString()} registrados`,detail:`${allSales.length} transacciones · Ticket promedio Bs ${avgTicket}`,recommendation:`Monitorear evolución diaria. Ticket promedio actual: Bs ${avgTicket}`});
+  insights.push({id:'sales_trend',icon:'📈',title:'Sales Trend',priority:allSales.length>5?'OK':'INFO',summary:`${appConfig.currency_symbol} ${totalRev.toLocaleString()} registrados`,detail:`${allSales.length} transacciones · Ticket promedio ${appConfig.currency_symbol} ${avgTicket}`,recommendation:`Monitorear evolución diaria. Ticket promedio actual: ${appConfig.currency_symbol} ${avgTicket}`});
   const lowMov=products.filter(p=>p.sold<50&&p.stock>0);
   insights.push({id:'low_movement',icon:lowMov.length>3?'🐌':'🟢',title:'Low Movement',priority:lowMov.length>3?'MEDIO':'OK',summary:`${lowMov.length} con baja rotación`,detail:`${lowMov.length} productos vendidos menos de 50 unidades con stock disponible`,recommendation:lowMov.length>0?`Evaluar estrategia para: ${lowMov.slice(0,2).map(p=>p.name).join(', ')}`:'Rotación de inventario saludable'});
   const top3=[...products].sort((a,b)=>b.sold-a.sold).slice(0,3);
@@ -1497,7 +1660,7 @@ function editProduct(i){
   document.getElementById('f_prov').value=p.prov;
   showModal('productModal');
 }
-function saveProduct(){
+async function saveProduct(){
   const data={
     name:document.getElementById('f_name').value,
     lab:document.getElementById('f_lab').value,
@@ -1508,19 +1671,62 @@ function saveProduct(){
     min:parseInt(document.getElementById('f_min').value)||10,
     exp:document.getElementById('f_exp').value,
     prov:document.getElementById('f_prov').value,
-    sold:0
   };
   if(!data.name){alert('Ingrese el nombre del producto');return;}
-  if(editIdx>=0){Object.assign(products[editIdx],data);}
-  else{data.id='PC'+String(products.length+1).padStart(3,'0');products.push(data);}
+
+  const supaPayload={
+    name:data.name, lab:data.lab, category:data.cat, presentation:data.pres,
+    price:data.price, stock:data.stock, stock_min:data.min,
+    expiration:data.exp||null, provider:data.prov,
+  };
+
+  if(editIdx>=0){
+    const p=products[editIdx];
+    if(usingSupabaseProducts && p._uuid && supabaseClient){
+      const {error}=await supabaseClient.from('products').update(supaPayload).eq('id',p._uuid);
+      if(error){alert('No se pudo guardar en Supabase: '+error.message);return;}
+    }
+    Object.assign(p,data);
+  }else{
+    if(usingSupabaseProducts && supabaseClient){
+      const code=nextProductCode();
+      const {data:inserted,error}=await supabaseClient.from('products')
+        .insert({...supaPayload, code}).select().single();
+      if(error){alert('No se pudo crear el producto en Supabase: '+error.message);return;}
+      products.push({
+        id:inserted.code, _uuid:inserted.id, name:inserted.name, lab:inserted.lab,
+        cat:inserted.category, pres:inserted.presentation, price:Number(inserted.price),
+        stock:inserted.stock, min:inserted.stock_min, exp:inserted.expiration,
+        prov:inserted.provider, sold:0,
+      });
+    }else{
+      // Fallback local (sin Supabase configurado todavía)
+      data.id='PC'+String(products.length+1).padStart(3,'0');
+      data.sold=0;
+      products.push(data);
+    }
+  }
   editIdx=-1;
   closeModal('productModal');
   updateLowBadge();
   renderInventario();
 }
-function deleteProduct(i){
+function nextProductCode(){
+  const nums=products.map(p=>parseInt((p.id||'').replace('PC',''),10)).filter(n=>!isNaN(n));
+  const next=(nums.length?Math.max(...nums):0)+1;
+  return 'PC'+String(next).padStart(3,'0');
+}
+async function deleteProduct(i){
   if(!hasPermission(currentUser.role,'inventory')){alert('Tu perfil ('+currentUser.role+') no tiene permiso para eliminar productos.');return;}
-  if(confirm(`¿Eliminar "${products[i].name}"?`)){products.splice(i,1);updateLowBadge();renderInventario();}
+  const p=products[i];
+  if(!confirm(`¿Eliminar "${p.name}"?`))return;
+  if(usingSupabaseProducts && p._uuid && supabaseClient){
+    const {error}=await supabaseClient.from('products').delete().eq('id',p._uuid);
+    if(error){alert('No se pudo eliminar en Supabase: '+error.message);return;}
+  }
+  products.splice(i,1);
+  updateLowBadge();
+  renderInventario();
 }
 function updateLowBadge(){
   const n=products.filter(p=>p.stock<=p.min).length;
@@ -1528,26 +1734,272 @@ function updateLowBadge(){
   document.getElementById('lowStockBadge').style.display=n?'':'none';
 }
 function toggleUser(id){
-  users[id].active=!users[id].active;
-  renderUsuarios();
+  const u=users.find(x=>x.id===id);
+  if(!u)return;
+  const newActive=!u.active;
+  if(supabaseClient){
+    supabaseClient.from('profiles').update({active:newActive}).eq('id',id).then(({error})=>{
+      if(error){alert('No se pudo actualizar el usuario: '+error.message);return;}
+      u.active=newActive;
+      renderUsuarios();
+    });
+  }else{
+    u.active=newActive;
+    renderUsuarios();
+  }
 }
-function doLogin(){
-  const idx=parseInt(document.getElementById('loginUser').value);
-  currentUser=users[idx];
+
+// ============================================================
+// SUPABASE — Conexión, Autenticación, Profiles/Roles, Pharmacy Settings
+// (Fase 3, pasos 1-4. Productos/Ventas/Usuarios-creación siguen en el
+// siguiente incremento — ver docs/FASE3_PROGRESO.md)
+// ============================================================
+let supabaseClient = null;
+let appConfig = {
+  pharmacy_name: 'PharmaCore', logo_url: null,
+  address: '', phone: '', email: '', country: '',
+  currency_code: 'BOB', currency_symbol: 'Bs',
+  tax_name: 'IVA', tax_rate: 0.16,
+  primary_color: '#00C48C', secondary_color: '#00A376',
+};
+
+function initSupabaseClient(){
+  const cfg = window.PHARMACORE_CONFIG;
+  if(window.__PHARMACORE_CONFIG_MISSING__ || !cfg || !cfg.SUPABASE_URL || cfg.SUPABASE_URL.includes('TU-PROYECTO')){
+    const w=document.getElementById('authGateConfigWarning'); if(w)w.style.display='block';
+    return false;
+  }
+  supabaseClient = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+  return true;
+}
+
+async function doAuthGateLogin(){
+  const email=document.getElementById('authEmail').value.trim();
+  const password=document.getElementById('authPassword').value;
+  const errEl=document.getElementById('authGateError');
+  errEl.style.display='none';
+  if(!supabaseClient){errEl.textContent='Supabase no está configurado (falta config.js).';errEl.style.display='block';return;}
+  const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+  if(error){errEl.textContent='Email o contraseña incorrectos.';errEl.style.display='block';return;}
+  await onAuthenticated(data.user);
+}
+
+async function doLogin(){
+  const email=document.getElementById('loginEmail').value.trim();
+  const password=document.getElementById('loginPassword').value;
+  const errEl=document.getElementById('loginError');
+  errEl.style.display='none';
+  if(!supabaseClient){errEl.textContent='Supabase no está configurado.';errEl.style.display='block';return;}
+  await supabaseClient.auth.signOut();
+  const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+  if(error){errEl.textContent='Email o contraseña incorrectos.';errEl.style.display='block';return;}
+  closeModal('loginModal');
+  await onAuthenticated(data.user);
+}
+
+async function signOutCurrentUser(){
+  if(supabaseClient) await supabaseClient.auth.signOut();
+  location.reload();
+}
+
+async function onAuthenticated(authUser){
+  const {data:profile,error}=await supabaseClient.from('profiles').select('*').eq('id',authUser.id).single();
+  if(error || !profile){
+    alert('Tu cuenta no tiene un perfil asociado en PharmaCore. Contacta al Administrador.');
+    await supabaseClient.auth.signOut();
+    return;
+  }
+  currentUser={
+    id: profile.id,
+    name: profile.full_name,
+    role: profile.role,
+    color: profile.avatar_color || '#00C48C',
+    avatar: profile.avatar_initials || profile.full_name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(),
+    active: profile.active,
+  };
   document.getElementById('sideUserName').textContent=currentUser.name;
   document.getElementById('sideUserRole').textContent=currentUser.role;
   document.getElementById('sideUserAvatar').textContent=currentUser.avatar;
   document.getElementById('sideUserAvatar').style.background=currentUser.color;
-  closeModal('loginModal');
+  document.getElementById('authGate').style.display='none';
+
+  await loadInitialData();
   applyRolePermissions();
-  renderPage(currentPage); // refresca botones de acción (Editar/Eliminar, + Nuevo Producto) según el nuevo rol
+  renderPage(currentPage||'dashboard');
+  document.getElementById('topAddBtn').style.display='flex';
+}
+
+// Carga desde Supabase: pharmacy_settings + profiles (usuarios).
+// products / allSales siguen en los arrays demo por ahora (próximo incremento).
+let usingSupabaseProducts = false;
+let usingSupabaseSales = false;
+
+async function loadInitialData(){
+  const {data:settings} = await supabaseClient.from('pharmacy_settings').select('*').eq('id',true).single();
+  if(settings) applyAppConfig(settings);
+
+  // ---- Productos ----
+  // Fallback deliberado: si Supabase no responde o la tabla aún está vacía
+  // (por ejemplo, todavía no se corrió seed-demo.sql), se conserva el array
+  // demo hardcodeado tal cual, para que la app nunca se quede en blanco
+  // durante el desarrollo. Esto se retira cuando la migración esté confirmada.
+  try{
+    const {data:prods, error} = await supabaseClient.from('products').select('*').order('code');
+    if(!error && prods && prods.length>0){
+      products.length=0;
+      prods.forEach(p=>products.push({
+        id:p.code,          // se mantiene "id" = code por compatibilidad con carrito/POS/AI
+        _uuid:p.id,          // uuid real de Supabase, usado para update/delete/checkout
+        name:p.name, lab:p.lab, cat:p.category, pres:p.presentation,
+        price:Number(p.price), stock:p.stock, min:p.stock_min,
+        exp:p.expiration, prov:p.provider, sold:0,
+      }));
+      usingSupabaseProducts = true;
+    }else{
+      console.warn('[PharmaCore] products: sin datos en Supabase todavía — usando catálogo demo local como fallback.');
+    }
+  }catch(e){
+    console.warn('[PharmaCore] products: error consultando Supabase — usando catálogo demo local como fallback.', e);
+  }
+
+  // ---- Ventas + líneas de venta ----
+  try{
+    const {data:salesRows, error} = await supabaseClient.from('sales')
+      .select('*, sale_items(*), profiles(full_name)')
+      .order('sale_date',{ascending:false}).order('sale_time',{ascending:false});
+    if(!error && salesRows && salesRows.length>0){
+      allSales.length=0;
+      salesRows.forEach(s=>{
+        allSales.push({
+          id:s.ticket_code, date:s.sale_date, time:s.sale_time,
+          user:(s.profiles&&s.profiles.full_name)||'—',
+          items:(s.sale_items||[]).map(it=>({name:it.product_name,qty:it.quantity,price:Number(it.unit_price)})),
+          total:Number(s.total), method:s.payment_method,
+          _subtotal:Number(s.subtotal), _tax:Number(s.tax_amount), _uuid:s.id,
+        });
+        (s.sale_items||[]).forEach(it=>{
+          const p=products.find(pp=>pp.name===it.product_name);
+          if(p) p.sold += it.quantity;
+        });
+      });
+      usingSupabaseSales = true;
+    }else{
+      console.warn('[PharmaCore] sales: sin datos en Supabase todavía — usando historial demo local como fallback.');
+    }
+  }catch(e){
+    console.warn('[PharmaCore] sales: error consultando Supabase — usando historial demo local como fallback.', e);
+  }
+
+  // Recalcular "ventas procesadas" por usuario ahora que allSales puede venir de Supabase
+  if(usingSupabaseSales){
+    users.forEach(u=>{ u.sales = allSales.filter(s=>s.user===u.name).length; });
+  }
+
+  // ---- Usuarios (solo si el rol actual puede administrarlos) ----
+  if(hasPermission(currentUser.role,'all')){
+    const {data:profs} = await supabaseClient.from('profiles').select('*').order('created_at');
+    const permsLabel={'Administrador':'Total','Farmacéutico Senior':'Ventas+Inv','Cajero':'Solo Ventas','Auxiliar':'Consulta'};
+    users.length=0;
+    (profs||[]).forEach(p=>{
+      users.push({
+        id:p.id, name:p.full_name, role:p.role,
+        color:p.avatar_color||'#00C48C', avatar:p.avatar_initials||'—',
+        active:p.active, since:(p.created_at||'').slice(0,10),
+        sales: usingSupabaseSales ? allSales.filter(s=>s.user===p.full_name).length : 0,
+        perms:permsLabel[p.role]||p.role,
+      });
+    });
+  }
+
+  updateLowBadge();
+}
+
+function applyAppConfig(settings){
+  appConfig = {
+    pharmacy_name: settings.pharmacy_name, logo_url: settings.logo_url,
+    address: settings.address, phone: settings.phone, email: settings.email, country: settings.country,
+    currency_code: settings.currency_code, currency_symbol: settings.currency_symbol,
+    tax_name: settings.tax_name, tax_rate: Number(settings.tax_rate),
+    primary_color: settings.primary_color, secondary_color: settings.secondary_color,
+  };
+  document.documentElement.style.setProperty('--acc', appConfig.primary_color);
+  document.documentElement.style.setProperty('--acc2', appConfig.secondary_color);
+  document.title = `${appConfig.pharmacy_name} — Sistema Integral Farmacéutico`;
+  const logoEl=document.getElementById('sidebarLogoText'); if(logoEl)logoEl.textContent=appConfig.pharmacy_name;
+  const nameEl=document.getElementById('authGateAppName'); if(nameEl)nameEl.textContent=appConfig.pharmacy_name;
+  // Paso 12 completado: moneda, símbolo, nombre del impuesto y nombre de la
+  // farmacia ya no están hardcodeados en ningún lugar de la app (POS, recibos,
+  // PharmaCore AI, título de la página, logo del sidebar) — todos leen de
+  // appConfig, que a su vez viene de pharmacy_settings.
+}
+
+// ===== Configuración de Farmacia (Fase 2 — solo Administrador) =====
+function renderConfiguracion(){
+  const c=document.getElementById('content');
+  if(!hasPermission(currentUser.role,'all')){
+    c.innerHTML='<div class="full-card">No tienes permiso para ver esta sección.</div>';
+    return;
+  }
+  const s=appConfig;
+  c.innerHTML=`
+  <div class="full-card" style="max-width:640px;">
+    <div style="font-size:14px;font-weight:700;margin-bottom:18px;">Configuración de Farmacia</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Nombre de la farmacia</label><input id="cfg_name" value="${s.pharmacy_name||''}"></div>
+      <div class="form-group"><label>Logo (URL de imagen)</label><input id="cfg_logo" value="${s.logo_url||''}" placeholder="https://..."></div>
+      <div class="form-group"><label>Dirección</label><input id="cfg_address" value="${s.address||''}"></div>
+      <div class="form-group"><label>Teléfono</label><input id="cfg_phone" value="${s.phone||''}"></div>
+      <div class="form-group"><label>Email</label><input id="cfg_email" value="${s.email||''}"></div>
+      <div class="form-group"><label>País</label><input id="cfg_country" value="${s.country||''}"></div>
+      <div class="form-group"><label>Código de moneda</label><input id="cfg_currency_code" value="${s.currency_code||''}" placeholder="BOB, USD, EUR..."></div>
+      <div class="form-group"><label>Símbolo de moneda</label><input id="cfg_currency_symbol" value="${s.currency_symbol||''}" placeholder="Bs, $, €..."></div>
+      <div class="form-group"><label>Nombre del impuesto</label><input id="cfg_tax_name" value="${s.tax_name||''}" placeholder="IVA"></div>
+      <div class="form-group"><label>Porcentaje del impuesto</label><input id="cfg_tax_rate" type="number" step="0.01" min="0" max="1" value="${s.tax_rate??0.16}" placeholder="0.16 = 16%"></div>
+      <div class="form-group"><label>Color principal</label><input id="cfg_primary" type="color" value="${s.primary_color||'#00C48C'}"></div>
+      <div class="form-group"><label>Color secundario</label><input id="cfg_secondary" type="color" value="${s.secondary_color||'#00A376'}"></div>
+    </div>
+    <div id="cfgSaveMsg" style="font-size:12px;margin-top:10px;display:none;"></div>
+    <button class="btn-save" style="margin-top:16px;" onclick="saveConfiguracion()">Guardar Configuración</button>
+  </div>`;
+}
+async function saveConfiguracion(){
+  const payload={
+    pharmacy_name: document.getElementById('cfg_name').value.trim() || 'PharmaCore',
+    logo_url: document.getElementById('cfg_logo').value.trim() || null,
+    address: document.getElementById('cfg_address').value.trim(),
+    phone: document.getElementById('cfg_phone').value.trim(),
+    email: document.getElementById('cfg_email').value.trim(),
+    country: document.getElementById('cfg_country').value.trim(),
+    currency_code: document.getElementById('cfg_currency_code').value.trim() || 'BOB',
+    currency_symbol: document.getElementById('cfg_currency_symbol').value.trim() || 'Bs',
+    tax_name: document.getElementById('cfg_tax_name').value.trim() || 'IVA',
+    tax_rate: parseFloat(document.getElementById('cfg_tax_rate').value) || 0,
+    primary_color: document.getElementById('cfg_primary').value,
+    secondary_color: document.getElementById('cfg_secondary').value,
+  };
+  const msg=document.getElementById('cfgSaveMsg');
+  const {error} = await supabaseClient.from('pharmacy_settings').update(payload).eq('id',true);
+  if(error){
+    msg.style.display='block'; msg.style.color='#C00000'; msg.textContent='Error al guardar: '+error.message;
+    return;
+  }
+  applyAppConfig(payload);
+  msg.style.display='block'; msg.style.color='#2E7D32'; msg.textContent='Configuración guardada.';
+  document.getElementById('pageTitle').textContent='Configuración';
 }
 
 // ===== INIT =====
-updateLowBadge();
-applyRolePermissions();
-renderPage('dashboard');
-document.getElementById('topAddBtn').style.display='flex';
+(function bootstrap(){
+  const ok = initSupabaseClient();
+  if(!ok) return; // authGate ya muestra el aviso de config.js faltante
+  supabaseClient.auth.getSession().then(({data:{session}})=>{
+    if(session && session.user){
+      onAuthenticated(session.user);
+    }
+    // Si no hay sesión, el authGate (visible por defecto en el HTML) se queda esperando login.
+  });
+})();
+
 </script>
 </body>
 </html>
